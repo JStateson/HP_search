@@ -1,0 +1,19 @@
+{
+  "name": "HP Product Search",
+  "description": "Uses the context menu to lookup an HP part or serial number",
+  "version": "0.9",
+  "manifest_version": 3,
+  "permissions": [ "contextMenus", "storage" ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "globalGoogle16.png",
+    "48": "globalGoogle48.png",
+    "128": "globalGoogle128.png"
+  }
+}
