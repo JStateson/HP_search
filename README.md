@@ -1,5 +1,5 @@
 # HP_search - This extension looks up selected text and finds the HP device, if any
-# text such as (HP M01-F2248nf)  changes to HP M01-F2248nf, # white space and trailing decimal or comma is removed.
+# text such as (HP M01-F2248nf)  changes to HP M01-F2248nf, white space and trailing decimal or comma is removed.
 
 ## Installing this extension
 
