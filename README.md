@@ -5,4 +5,4 @@
 
 1. Clone this repository or download all the files into a folder.
 2. Load the folder in Chrome as an [unpacked extension](https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked).
-3.  Run the MP4 to see how the extension works.
+3. Run the MP4 to see how the extension works.
