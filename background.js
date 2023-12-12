@@ -21,15 +21,31 @@ chrome.runtime.onInstalled.addListener(async () => {
     });
 });
 
+// do not want any white space in the lookup
+// any trailing period or comma needs to be removed
+// remove any parenthesis
+function ExtractSearchID(str) {
+    str = str.trim();
+    let n = str.length - 1;
+    let res = str.charAt(n);
+    if (res == '.' || res == ',') str = str.substring(1, n);
+    str = str.replace("(", "").replace(")", "");
+    return str;
+}
 
+// jstateson:  extract product ID xxxxx from (xxxxx)
+//  (HP M01-F2248nf)  changes to HP M01-F2248nf
+// white spaces are dropped before and after the text
+// F224nf. becomes F224nf
 chrome.contextMenus.onClicked.addListener((item, tab) => {
+    let str = ExtractSearchID(item.selectionText);
+    const url2 = new URL(`https://partsurfer.hp.com/partsurfer`);
+    url2.searchParams.set('searchtext', str);
+    chrome.tabs.create({ url: url2.href, index: tab.index + 1 });
     const url1 = new URL(`https://support.hp.com/us-en/deviceSearch`);
-    url1.searchParams.set('q', item.selectionText);
+    url1.searchParams.set('q', str);
     url1.searchParams.append('origin','pdp');
     chrome.tabs.create({ url: url1.href, index: tab.index + 1 });
-    const url2 = new URL(`https://partsurfer.hp.com/partsurfer`);
-    url2.searchParams.set('searchtext', item.selectionText);
-    chrome.tabs.create({ url: url2.href, index: tab.index + 1 });
 });
 
 
