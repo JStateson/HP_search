@@ -46,6 +46,10 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
     url1.searchParams.set('q', str);
     url1.searchParams.append('origin','pdp');
     chrome.tabs.create({ url: url1.href, index: tab.index + 1 });
+    // https://www.google.com/search?q=Envy+6032e+youtube+network
+    const url3 = new URL(`https://www.google.com/search`);
+    url3.searchParams.set('q', str + ' youtube network');
+    chrome.tabs.create({ url: url3.href, index: tab.index + 1 });
 });
 
 
