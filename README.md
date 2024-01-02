@@ -1,5 +1,6 @@
 # HP_search - This extension looks up selected text and finds the HP device, if any.  Text such as (HP M01-F2248nf) changes to HP M01-F2248nf.  White space and trailing decimal or comma is removed.
 ## Useful only for volunteers at the HP support community.  Run the MP4 video to see how the extension works.
+## The search also uses google to look for any type of youtube network setup.  Useful for Wi-Fi printers.
 ## Installing this extension
 
 1. Clone this repository or download the zip release into a folder.
