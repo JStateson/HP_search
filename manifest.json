@@ -12,8 +12,8 @@
     "default_popup": "popup.html"
   },
   "icons": {
-    "16": "globalGoogle16.png",
-    "48": "globalGoogle48.png",
-    "128": "globalGoogle128.png"
+    "16": "hp16.png",  //"globalGoogle16.png",
+    "48": "hp48.png",  //"globalGoogle48.png",
+    "128": "hp128.png" // "globalGoogle128.png"
   }
 }
