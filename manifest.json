@@ -1,9 +1,9 @@
 {
-  "name": "HP Product Search",
-  "description": "Uses the context menu to lookup an HP part or serial number",
-  "version": "1.0",
+  "name": "HP Search",
+  "description": "Lookup HP devices to solve various user problems:  Connectivity, disassembly, Specifications, spares",
+  "version": "2.0",
   "manifest_version": 3,
-  "permissions": [ "contextMenus", "storage" ],
+  "permissions": [ "contextMenus", "storage", "clipboardRead", "clipboardWrite", "activeTab", "scripting",  "tabs" ],
   "background": {
     "service_worker": "background.js",
     "type": "module"

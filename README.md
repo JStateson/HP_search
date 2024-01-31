@@ -1,8 +1,18 @@
-# HP_search - This extension looks up selected text and finds the HP device, if any.  Text such as (HP M01-F2248nf) changes to HP M01-F2248nf.  White space and trailing decimal or comma is removed.
-## Useful only for volunteers at the HP support community.  Run the MP4 video to see how the extension works.
-## The search also uses google to look for any type of youtube network setup.  Useful for Wi-Fi printers.
-## Installing this extension
+# HP Search - Lookup HP devices to solve various user problems: Connectivity, disassembly, Specifications, spares
 
-1. Clone this repository or download the zip release into a folder.
-2. Load the folder in Chrome as an [unpacked extension](https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked).
-3. Tested only on Chrome and Windows 11
+## Useful only for volunteers at the HP support community.
+
+1. Printer lookup returns Spec, How to reset and youtube network connection video
+2. AIO/Laptop lookup returns Spec, Parts list and youtube disassembly
+3. PC lookup returns Spec and Parts list.
+4. Parts lookup goes to eBay
+5. Cloud lookup brings up the cloud recovery lookup
+6. The Printer, AIO and PC can also be launched into a new window.
+
+## To install this extension
+
+1. Clone this repository or download the zip and unpack into "HP_Search"
+2. Load the HP_Search folder in Chrome as an [unpacked extension](https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked).
+3. Enable the extension and be sure to disable developer mode.
+4. Select the text you want to search and right-click within the selection to view and interact with the context menu.
+5. Tested on Chrome and Edge in Windows 11
