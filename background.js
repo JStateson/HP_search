@@ -83,6 +83,7 @@ function RunAIO(tab, str, id)
 
 function RunPC(tab, str, id)
 {
+    var url1, url2;
     url2 = new URL(`https://partsurfer.hp.com/partsurfer`);
     url2.searchParams.set('searchtext', str);
     chrome.tabs.create({ url: url2.href, windowId: id, index: tab.index + 1 });
