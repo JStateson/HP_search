@@ -15,4 +15,5 @@
 2. Load the HP_Search folder in Chrome as an [unpacked extension](https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked).
 3. Enable the extension and be sure to disable developer mode.
 4. Select the text you want to search and right-click within the selection to view to get the desired lookup.
-5. Tested on Chrome and Edge in Windows 11
+5. Tested on Chrome and Edge in Windows 11 and looks like this
+6. ![alt text](https://stateson.net/images/HPsearch-extension.png)
