@@ -32,11 +32,31 @@ chrome.runtime.onInstalled.addListener(async () => {
 // any trailing period or comma needs to be removed
 // remove any parenthesis
 function ExtractSearchID(str) {
+    var n=0, res="", str0 = "";
     str = str.trim();
-    let n = str.length - 1;
-    let res = str.charAt(n);
-    if (res == '.' || res == ',') str = str.substring(1, n);
-    str = str.replace("(", "").replace(")", "");
+
+    //remove any parens anywhere
+    str0 = str.replace("(", "").replace(")", "");
+    while (str0 != str) {
+        str = str0;
+        str0 = str.replace("(", "").replace(")", "");
+    }
+    
+    //remove trailing periods or commas
+    n = str.length - 1;
+    res = str.charAt(n);
+    if (res == '.' || res == ',') str0 = str.substring(0, n);
+
+    while (str0 != str)
+    {
+        str = str0;
+        let n = str.length - 1;
+        let res = str.charAt(n);
+        if (res == '.' || res == ',') str0 = str.substring(0, n);
+    }
+
+
+
     return str;
 }
 
