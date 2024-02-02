@@ -61,7 +61,7 @@ function ExtractSearchID(str) {
 }
 
 // need to figure out how to identify the below arguement as a string!!!  
-// this it not standard VBA !!!
+// this is not standard VBA !!!
 function RemoveCountryCode(strStupid)
 {
     var str = strStupid.trim(); 
@@ -70,9 +70,11 @@ function RemoveCountryCode(strStupid)
     return str.substring(0, i);
 }
 
-
+//https://youtube.com/@HPSupport/search?query=deskjet%203755
 function RunPRT(tab, str, id) {
-    var url1, url2, url3;
+    var url1, url2, url3, url4;
+    url4 = new URL(`https://youtube.com/@HPSupport/search?query=` + str);
+    chrome.tabs.create({ url: url4.href, index: tab.index + 1 })
     url3 = new URL(`https://www.google.com/search`);
     url3.searchParams.set('q', str + ' youtube network connect');
     chrome.tabs.create({ url: url3.href, windowId: id, index: tab.index + 1 });
@@ -119,7 +121,7 @@ function RunPC(tab, str, id)
 // F224nf. becomes F224nf
 chrome.contextMenus.onClicked.addListener((item, tab) => {
     const tld = item.menuItemId;
-    var url1, url2, url3;
+    var url1, url2, url3, url4;
     var id;
     let str1 = ExtractSearchID(item.selectionText);
     let str = RemoveCountryCode(str1);
@@ -148,9 +150,7 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
             break;
 
         case "CR":
-
             url3 = new URL(`http://support.hp.cloud-recovery.s3-website-us-west-1.amazonaws.com`);
-            //url3 = new URL(`https://d34z73bbtpzgej.cloudfront.net`);
             chrome.tabs.create({ url: url3.href, index: tab.index + 1 });
             // user needs to do the copy first until I can find how to push "str1"
             break;
@@ -158,7 +158,10 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
         case "EB":
             let str0 = "https://www.ebay.com/sch/i.html?_nkw=" + str + "&_sacat=58058"
             url3 = new URL(str0);
-            chrome.tabs.create({ url: url3.href, index: tab.index + 1 });            
+            chrome.tabs.create({ url: url3.href, index: tab.index + 1 });
+            url2 = new URL(`https://partsurfer.hp.com/partsurfer`);
+            url2.searchParams.set('searchtext', str);
+            chrome.tabs.create({ url: url2.href, windowId: id, index: tab.index + 1 });
             break;
 
         case "APrt":

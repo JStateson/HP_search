@@ -9,7 +9,7 @@ export const tldLocales = {
   PC: 'PC Desktop',
   OEM: 'Part Number',
   CR: 'CloudRecover',
-  EB: 'eBay lookup',
+  EB: 'eBay+surf-SN lookup',
   APrt: 'Printer NewWindow',
   AAio: 'AIO NewWindow',
   APc: 'PC NewWindow'
