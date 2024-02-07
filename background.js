@@ -190,7 +190,7 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
                     chrome.tabs.query({
                         windowId: newWin.id
                     }, function (tabsToClose) {
-                        RunPRT(tab, str, newWin.id);
+                        RunPC(tab, str, newWin.id);
                         chrome.tabs.query({ currentWindow: true }, function (tabs) {
                             chrome.tabs.remove(tabs[0].id);
                         });
