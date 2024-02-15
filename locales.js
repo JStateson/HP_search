@@ -4,12 +4,12 @@
 
 // TLD: top level domain; the "com" in "google.com"
 export const tldLocales = {
-  Printer: 'Printer',
-  AIO: 'AIO or Laptop',
+  PRN: 'Printer',
+  AIO: 'AIO-Note',
   PC: 'PC Desktop',
   OEM: 'Part Number',
   CR: 'CloudRecover',
-  EB: 'eBay+surf-SN lookup',
+  EB: 'eBay+surf-SNlookup',
   APrt: 'Printer NewWindow',
   AAio: 'AIO NewWindow',
   APc: 'PC NewWindow'

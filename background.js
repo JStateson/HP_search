@@ -131,7 +131,7 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
 
     switch (tld)
     {
-        case "Printer":
+        case "PRN":
             RunPRT(tab, str, id);
             break;
 
