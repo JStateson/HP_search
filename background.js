@@ -79,7 +79,7 @@ function RunPRT(tab, str, id) {
     url3.searchParams.set('q', str + ' youtube network connect');
     chrome.tabs.create({ url: url3.href, windowId: id, index: tab.index + 1 });
     url2 = new URL(`https://www.google.com/search`);
-    url2.searchParams.set('q', str + ' printer reset');
+    url2.searchParams.set('q', str + ' printer factory reset');
     chrome.tabs.create({ url: url2.href, windowId: id, index: tab.index + 1 });
     url1 = new URL(`https://support.hp.com/us-en/deviceSearch`);
     url1.searchParams.set('q', str);
@@ -147,12 +147,21 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
             url3 = new URL(`https://www.google.com/search`);
             url3.searchParams.set('q', str);
             chrome.tabs.create({ url: url3.href, index: tab.index + 1 });
+            url2 = new URL(`https://www.google.com/search`);
+            url2.searchParams.set('q', "HP " + str + " memory finder");
+            chrome.tabs.create({ url: url2.href, windowId: id, index: tab.index + 1 });
             break;
 
         case "CR":
             url3 = new URL(`http://support.hp.cloud-recovery.s3-website-us-west-1.amazonaws.com`);
             chrome.tabs.create({ url: url3.href, index: tab.index + 1 });
             // user needs to do the copy first until I can find how to push "str1"
+            break;
+
+        case "KB":
+            url3 = new URL(`https://h30434.www3.hp.com/t5/forums/searchpage/tab/message?advanced=false&allow_punctuation=false&q=` + str);
+            //url3.searchParams.set('q', str);
+            chrome.tabs.create({ url: url3.href, index: tab.index + 1 });
             break;
 
         case "EB":
