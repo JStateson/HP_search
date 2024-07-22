@@ -9,6 +9,9 @@ Desktop:  Lookup model and parts
 Printer: Lookup model, how to reset and help on network connection
 Part : lookup on eBay
 Cloud: bring up the cloud recovery page but for now you need to use "copy" to get the text onto the clipboard
+June 2024 its seems that //partsurfer.hp.com/partsurfer needs to be //partsurfer.hp.com
+July 2024 want to extract ID and model if user listed "15-xxxx (yyyyyyy)"
+there are 7 of the Y and must be 2 numeric digits minimum length of 16 characters
 */
 
 import { tldLocales } from './locales.js';
@@ -26,12 +29,35 @@ chrome.runtime.onInstalled.addListener(async () => {
   }
 });
 
+//"15-xxxx (yyyyyyy)"
+function HasBothItems(str)
+{
+    var i, j, n;
+    let strID = "";
+    let strModel = "";
+    str = str.trim();
+    n = str.length;
+    if (n < 16) return "";
+    i = str.indexOf('(');
+    if (i < 0) return "";
+    j = str.indexOf(')', i);
+    if (j < 0) return "";
+    n = j - i;      // might want to remove country code
+    if (n != 8) return "";
+    strID = str.substring(i + 1, j);
+    strModel = str.substring(0, i).trim();
+    strModel = strModel.replace(" ", "-");
+    str = strModel + " " + strID;
+    if (str.length < 15) "";
+    return str;
+}
 
 
 // do not want any white space in the lookup
 // any trailing period or comma needs to be removed
 // remove any parenthesis
-function ExtractSearchID(str) {
+function ExtractSearchID(str)
+{
     var n=0, res="", str0 = "";
     str = str.trim();
 
@@ -55,8 +81,6 @@ function ExtractSearchID(str) {
         if (res == '.' || res == ',') str0 = str.substring(0, n);
     }
 
-
-
     return str;
 }
 
@@ -71,7 +95,7 @@ function RemoveCountryCode(strStupid)
 }
 
 //https://youtube.com/@HPSupport/search?query=deskjet%203755
-function RunPRT(tab, str, id) {
+function RunPRT(tab, str, id, sID) {
     var url1, url2, url3, url4;
     url4 = new URL(`https://youtube.com/@HPSupport/search?query=` + str);
     chrome.tabs.create({ url: url4.href, index: tab.index + 1 })
@@ -82,35 +106,37 @@ function RunPRT(tab, str, id) {
     url2.searchParams.set('q', str + ' printer factory reset');
     chrome.tabs.create({ url: url2.href, windowId: id, index: tab.index + 1 });
     url1 = new URL(`https://support.hp.com/us-en/deviceSearch`);
-    url1.searchParams.set('q', str);
+    url1.searchParams.set('q', sID);
     url1.searchParams.append('origin', 'pdp');
     chrome.tabs.create({ url: url1.href, windowId: id, index: tab.index + 1 });
 }
 
-function RunAIO(tab, str, id)
+function RunAIO(tab, str, id, sID)
 {
     var url1, url2, url3;
+    let str1 = str;
+    if (str.indexOf("HP") < 0) str1 = "HP " + str;    
     url3 = new URL(`https://www.google.com/search`);
-    url3.searchParams.set('q', str + ' disassembly');
+    url3.searchParams.set('q', str1 + ' disassembly');
     chrome.tabs.create({ url: url3.href, windowId: id, index: tab.index + 1 });
-    url2 = new URL(`https://partsurfer.hp.com/partsurfer`);
-    url2.searchParams.set('searchtext', str);
+    url2 = new URL(`https://partsurfer.hp.com`);
+    url2.searchParams.set('searchtext', sID);
     chrome.tabs.create({ url: url2.href, windowId: id, index: tab.index + 1 });
     url1 = new URL(`https://support.hp.com/us-en/deviceSearch`);
-    url1.searchParams.set('q', str);
+    url1.searchParams.set('q', sID);
     url1.searchParams.append('origin', 'pdp');
     chrome.tabs.create({ url: url1.href, windowId: id, index: tab.index + 1 });
 }
 
 
-function RunPC(tab, str, id)
+function RunPC(tab, str, id, sID)
 {
     var url1, url2;
-    url2 = new URL(`https://partsurfer.hp.com/partsurfer`);
-    url2.searchParams.set('searchtext', str);
+    url2 = new URL(`https://partsurfer.hp.com`);
+    url2.searchParams.set('searchtext', sID);
     chrome.tabs.create({ url: url2.href, windowId: id, index: tab.index + 1 });
     url1 = new URL(`https://support.hp.com/us-en/deviceSearch`);
-    url1.searchParams.set('q', str);
+    url1.searchParams.set('q', sID);
     url1.searchParams.append('origin', 'pdp');
     chrome.tabs.create({ url: url1.href, windowId: id, index: tab.index + 1 });
 }
@@ -125,6 +151,13 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
     var id;
     let str1 = ExtractSearchID(item.selectionText);
     let str = RemoveCountryCode(str1);
+    let str2 = HasBothItems(item.selectionText)
+    let strID = str;
+    if (str2 != "") {
+        let i = str2.indexOf(" ");
+        strID = str2.substring(i+1);
+        str = str2.substring(0,i);
+    }
     chrome.tabs.query({
         windowId: id
     });
@@ -132,15 +165,15 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
     switch (tld)
     {
         case "PRN":
-            RunPRT(tab, str, id);
+            RunPRT(tab, str, id, strID);
             break;
 
         case "AIO":
-            RunAIO(tab, str, id);
+            RunAIO(tab, str, id, strID);
             break;
 
         case "PC":
-            RunPC(tab, str, id);
+            RunPC(tab, str, id, strID);
             break;
 
         case "OEM":
@@ -168,7 +201,7 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
             let str0 = "https://www.ebay.com/sch/i.html?_nkw=" + str + "&_sacat=58058"
             url3 = new URL(str0);
             chrome.tabs.create({ url: url3.href, index: tab.index + 1 });
-            url2 = new URL(`https://partsurfer.hp.com/partsurfer`);
+            url2 = new URL(`https://partsurfer.hp.com`);
             url2.searchParams.set('searchtext', str);
             chrome.tabs.create({ url: url2.href, windowId: id, index: tab.index + 1 });
             break;
@@ -182,7 +215,7 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
                     chrome.tabs.query({
                         windowId: newWin.id
                     }, function (tabsToClose) {
-                        RunPRT(tab, str, newWin.id);
+                        RunPRT(tab, str, newWin.id, strID);
                         chrome.tabs.query({currentWindow: true }, function (tabs) {
                             chrome.tabs.remove(tabs[0].id);
                         });
@@ -199,7 +232,7 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
                     chrome.tabs.query({
                         windowId: newWin.id
                     }, function (tabsToClose) {
-                        RunPC(tab, str, newWin.id);
+                        RunPC(tab, str, newWin.id, strID);
                         chrome.tabs.query({ currentWindow: true }, function (tabs) {
                             chrome.tabs.remove(tabs[0].id);
                         });
@@ -215,7 +248,7 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
                     chrome.tabs.query({
                         windowId: newWin.id
                     }, function (tabsToClose) {
-                        RunAIO(tab, str, newWin.id);
+                        RunAIO(tab, str, newWin.id, strID);
                         chrome.tabs.query({ currentWindow: true }, function (tabs) {
                             chrome.tabs.remove(tabs[0].id);
                         });
