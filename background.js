@@ -29,6 +29,9 @@ chrome.runtime.onInstalled.addListener(async () => {
   }
 });
 
+
+
+
 //"15-xxxx (yyyyyyy)"
 function HasBothItems(str)
 {
@@ -46,42 +49,57 @@ function HasBothItems(str)
     if (n != 8) return "";
     strID = str.substring(i + 1, j);
     strModel = str.substring(0, i).trim();
-    strModel = strModel.replace(" ", "-");
-    str = strModel + " " + strID;
-    if (str.length < 15) "";
+    str = strModel + "(*)" + strID;
+    if (str.length < 15) return "";
     return str;
 }
 
-
-// do not want any white space in the lookup
-// any trailing period or comma needs to be removed
-// remove any parenthesis
-function ExtractSearchID(str)
-{
-    var n=0, res="", str0 = "";
+function HasID(str) {
+    var i, j, n;
+    let strID = "";
     str = str.trim();
+    n = str.length;
+    if (n < 9) return "";
+    i = str.indexOf('(');
+    if (i < 0) return "";
+    j = str.indexOf(')', i);
+    if (j < 0) return "";
+    n = j - i;
+    if (n != 8) return "";
+    strID = str.substring(i + 1, j);
+    return strID;
+}
 
+/*
     //remove any parens anywhere
     str0 = str.replace("(", "").replace(")", "");
     while (str0 != str) {
         str = str0;
         str0 = str.replace("(", "").replace(")", "");
     }
-    
+*/
+
+
+// do not want any white space in the lookup
+// any trailing period or comma needs to be removed
+function RemoveJunk(str) {
+    var n = 0, res = "", str0;
+    str = str.trim();
+    str0 = str;
+
     //remove trailing periods or commas
     n = str.length - 1;
+    if (n < 0) return "";
     res = str.charAt(n);
     if (res == '.' || res == ',') str0 = str.substring(0, n);
 
-    while (str0 != str)
-    {
+    while (str0 != str) {
         str = str0;
         let n = str.length - 1;
         let res = str.charAt(n);
         if (res == '.' || res == ',') str0 = str.substring(0, n);
     }
-
-    return str;
+    return str.trim();
 }
 
 // need to figure out how to identify the below arguement as a string!!!  
@@ -94,16 +112,63 @@ function RemoveCountryCode(strStupid)
     return str.substring(0, i);
 }
 
+//replace sIn with pattrn sP but case insenstive
+function MyReplace(sIN, sLC, sP) {
+    var s = " " + sP + " ";
+    var n = s.length;
+    var b = "                     ";
+    var i = sLC.indexOf(sP);
+    if (i < 0) return sIN;
+    if (i == 0) {
+        return b.substring(0, n) + sIN.substring(i + n);
+    }
+    else {
+        return sIN.substring(0, i) + b.substring(0, n) + sIN.substring(i + n - 1);
+    }
+
+}
+
+function RemoveCommonItems(strIn)
+{
+    var s = strIn;
+    var t = s.toLowerCase();
+    s = MyReplace(s, t, "hp");
+    s = MyReplace(s, t, "pc");
+    s = MyReplace(s, t, "aio");
+    s = MyReplace(s, t, "laptop");
+    s = MyReplace(s, t, "notebook");
+    s = MyReplace(s, t, "printer");
+    s = MyReplace(s, t, "all-in-one");
+    s = MyReplace(s, t, "officejet");
+    s = MyReplace(s, t, "laserjet");
+    s = MyReplace(s, t, "deskjet");
+    s = MyReplace(s, t, "color");
+    s = MyReplace(s, t, "pavilion");
+    s = MyReplace(s, t, "convertible");
+    s = MyReplace(s, t, "compaq");
+    s = MyReplace(s, t, "product:");
+    s = MyReplace(s, t, "gaming");
+    s = MyReplace(s, t, "omen by");
+
+    t = s.replace("  ", " ");
+    while (t != s) {
+        s = t;
+        t = s.replace("  ", " ");
+    }
+    //return s.trim();
+    return RemoveJunk(s);
+}
+
 //https://youtube.com/@HPSupport/search?query=deskjet%203755
 function RunPRT(tab, str, id, sID) {
     var url1, url2, url3, url4;
     url4 = new URL(`https://youtube.com/@HPSupport/search?query=` + str);
     chrome.tabs.create({ url: url4.href, index: tab.index + 1 })
     url3 = new URL(`https://www.google.com/search`);
-    url3.searchParams.set('q', str + ' youtube network connect');
+    url3.searchParams.set('q',"HP " + str + ' youtube network connect');
     chrome.tabs.create({ url: url3.href, windowId: id, index: tab.index + 1 });
     url2 = new URL(`https://www.google.com/search`);
-    url2.searchParams.set('q', str + ' printer factory reset');
+    url2.searchParams.set('q', "HP " + str + ' printer factory reset');
     chrome.tabs.create({ url: url2.href, windowId: id, index: tab.index + 1 });
     url1 = new URL(`https://support.hp.com/us-en/deviceSearch`);
     url1.searchParams.set('q', sID);
@@ -113,11 +178,9 @@ function RunPRT(tab, str, id, sID) {
 
 function RunAIO(tab, str, id, sID)
 {
-    var url1, url2, url3;
-    let str1 = str;
-    if (str.indexOf("HP") < 0) str1 = "HP " + str;    
+    var url1, url2, url3;   
     url3 = new URL(`https://www.google.com/search`);
-    url3.searchParams.set('q', str1 + ' disassembly');
+    url3.searchParams.set('q',"HP " + str + ' disassembly');
     chrome.tabs.create({ url: url3.href, windowId: id, index: tab.index + 1 });
     url2 = new URL(`https://partsurfer.hp.com`);
     url2.searchParams.set('searchtext', sID);
@@ -149,15 +212,21 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
     const tld = item.menuItemId;
     var url1, url2, url3, url4;
     var id;
-    let str1 = ExtractSearchID(item.selectionText);
-    let str = RemoveCountryCode(str1);
-    let str2 = HasBothItems(item.selectionText)
+    //let str1 = ExtractSearchID(item.selectionText);
+    //let str = RemoveCountryCode(str1);
+    let str = RemoveCommonItems(item.selectionText);
     let strID = str;
+    let str2 = HasBothItems(str);
     if (str2 != "") {
-        let i = str2.indexOf(" ");
-        strID = str2.substring(i+1);
-        str = str2.substring(0,i);
+        let i = str2.indexOf("(*)");
+        if (i >= 0) {
+            strID = str2.substring(i + 3);
+            if (i > 0) {
+                str = RemoveJunk(str.substring(0, i));
+            }
+        }
     }
+
     chrome.tabs.query({
         windowId: id
     });
@@ -178,7 +247,7 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
 
         case "OEM":
             url3 = new URL(`https://www.google.com/search`);
-            url3.searchParams.set('q', str);
+            url3.searchParams.set('q', "HP " + str);
             chrome.tabs.create({ url: url3.href, index: tab.index + 1 });
             url2 = new URL(`https://www.google.com/search`);
             url2.searchParams.set('q', "HP " + str + " memory finder");
@@ -198,7 +267,7 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
             break;
 
         case "EB":
-            let str0 = "https://www.ebay.com/sch/i.html?_nkw=" + str + "&_sacat=58058"
+            let str0 = "https://www.ebay.com/sch/i.html?_nkw=" + "HP " + str + "&_sacat=58058"
             url3 = new URL(str0);
             chrome.tabs.create({ url: url3.href, index: tab.index + 1 });
             url2 = new URL(`https://partsurfer.hp.com`);
