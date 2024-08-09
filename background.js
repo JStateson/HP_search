@@ -102,61 +102,64 @@ function RemoveJunk(str) {
     return str.trim();
 }
 
-// need to figure out how to identify the below arguement as a string!!!  
-// this is not standard VBA !!!
-function RemoveCountryCode(strStupid)
-{
-    var str = strStupid.trim(); 
-    var i = str.indexOf("#");
-    if (i < 0) return str;
-    return str.substring(0, i);
-}
 
 //replace sIn with pattrn sP but case insenstive
 function MyReplace(sIN, sLC, sP) {
-    var s = " " + sP + " ";
-    var n = s.length;
+    var s = sP;
+    var n = s.length - 1;
     var b = "                     ";
-    var i = sLC.indexOf(sP);
+    var i = sLC.indexOf(s);
     if (i < 0) return sIN;
     if (i == 0) {
-        return b.substring(0, n) + sIN.substring(i + n);
+        return b.substring(0, n) + sIN.substring(n);
     }
     else {
-        return sIN.substring(0, i) + b.substring(0, n) + sIN.substring(i + n - 1);
+        return sIN.substring(0, i) + b.substring(0, n) + sIN.substring(i + n);
     }
 
 }
 
 function RemoveCommonItems(strIn)
 {
-    var s = strIn;
+    var s = " " + strIn + " ";
     var t = s.toLowerCase();
-    s = MyReplace(s, t, "hp");
-    s = MyReplace(s, t, "pc");
-    s = MyReplace(s, t, "aio");
-    s = MyReplace(s, t, "laptop");
-    s = MyReplace(s, t, "notebook");
-    s = MyReplace(s, t, "printer");
-    s = MyReplace(s, t, "all-in-one");
-    s = MyReplace(s, t, "officejet");
-    s = MyReplace(s, t, "laserjet");
-    s = MyReplace(s, t, "deskjet");
-    s = MyReplace(s, t, "color");
-    s = MyReplace(s, t, "pavilion");
-    s = MyReplace(s, t, "convertible");
-    s = MyReplace(s, t, "compaq");
-    s = MyReplace(s, t, "product:");
-    s = MyReplace(s, t, "gaming");
-    s = MyReplace(s, t, "omen by");
+    s = MyReplace(s, t, " hp ");
+    s = MyReplace(s, t, " pc ");
+    s = MyReplace(s, t, " aio ");
+    s = MyReplace(s, t, " laptop ");
+    s = MyReplace(s, t, " notebook ");
+    s = MyReplace(s, t, " printer ");
+    s = MyReplace(s, t, " all-in-one ");
+    s = MyReplace(s, t, " officejet ");
+    s = MyReplace(s, t, " laserjet ");
+    s = MyReplace(s, t, " deskjet ");
+    s = MyReplace(s, t, " color ");
+    s = MyReplace(s, t, " pavilion ");
+    s = MyReplace(s, t, " convertible ");
+    s = MyReplace(s, t, " compaq ");
+    s = MyReplace(s, t, " product: ");
+    s = MyReplace(s, t, " gaming ");
+    s = MyReplace(s, t, " omen by ");
 
     t = s.replace("  ", " ");
     while (t != s) {
         s = t;
         t = s.replace("  ", " ");
     }
-    //return s.trim();
     return RemoveJunk(s);
+}
+
+//Currently Viewing: "HP Laptop PC 15-dw3000 (31R08AV)" in "Notebook Hardware and Upgrade Que
+function CurrentlyViewing(strIn)
+{
+    var s = strIn;
+    var t = "Currently Viewing: \"HP ";
+    var i = s.indexOf(t);
+    if (i < 0) return "";
+    i += t.length;
+    var j = s.indexOf("\"",i);
+    if (i < 0) return "";
+    return s.substring(i,j);
 }
 
 //https://youtube.com/@HPSupport/search?query=deskjet%203755
@@ -212,17 +215,27 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
     const tld = item.menuItemId;
     var url1, url2, url3, url4;
     var id;
-    //let str1 = ExtractSearchID(item.selectionText);
-    //let str = RemoveCountryCode(str1);
+    let str1 = CurrentlyViewing(item.selectionText);
     let str = RemoveCommonItems(item.selectionText);
     let strID = str;
-    let str2 = HasBothItems(str);
-    if (str2 != "") {
-        let i = str2.indexOf("(*)");
-        if (i >= 0) {
-            strID = str2.substring(i + 3);
-            if (i > 0) {
+    if (str1 == "") {
+        let str2 = HasBothItems(str);
+        if (str2 != "") {
+            let i = str2.indexOf("(*)");
+            if (i >= 0) {
+                strID = str2.substring(i + 3);
                 str = RemoveJunk(str.substring(0, i));
+            }
+        }
+    }
+    else
+    {
+        let str2 = HasBothItems(str1);
+        if (str2 != "") {
+            let i = str2.indexOf("(*)");
+            if (i > 0) {
+                strID = str2.substring(i + 3);
+                str = RemoveCommonItems(str2.substring(0, i));
             }
         }
     }

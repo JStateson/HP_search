@@ -16,4 +16,8 @@
 3. Enable the extension and be sure to disable developer mode.
 4. Select the text you want to search and right-click within the selection to view to get the desired lookup.
 5. Tested on Chrome and Edge in Windows 11 and looks like this
-6. ![alt text](https://stateson.net/images/HPsearch-1extension.png)   
+6. ![alt text](https://stateson.net/images/HPsearch-1extension.png)
+
+example:  Selecting the following phrase filters out "15-dw3000" and "311R08AV"
+Currently Viewing: "HP Laptop PC 15-dw3000 (31R08AV)" in "Notebook Hardware and Upgrade Que
+15-dw3000 is used in google or bing and 31R08AV is used in any HP lookup
