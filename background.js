@@ -106,8 +106,9 @@ function RemoveJunk(str) {
 //replace sIn with pattrn sP but case insenstive
 function MyReplace(sIN, sLC, sP) {
     var s = sP;
-    var n = s.length - 1;
+    var n = s.length;
     var b = "                     ";
+    var c = "zzzzzzzzzzzzzzzzzzzzzzz";
     var i = sLC.indexOf(s);
     if (i < 0) return sIN;
     if (i == 0) {
@@ -119,10 +120,15 @@ function MyReplace(sIN, sLC, sP) {
 
 }
 
+// MyReplace does not change var t so duplicate require additional t = s 
 function RemoveCommonItems(strIn)
 {
-    var s = " " + strIn + " ";
+    var s = "" + strIn + " ";
     var t = s.toLowerCase();
+    s = MyReplace(s, t, "\"");
+    t = s.toLowerCase();
+    s = MyReplace(s, t, "\"");
+    t = s.toLowerCase();
     s = MyReplace(s, t, " hp ");
     s = MyReplace(s, t, " pc ");
     s = MyReplace(s, t, " aio ");
@@ -140,6 +146,8 @@ function RemoveCommonItems(strIn)
     s = MyReplace(s, t, " product: ");
     s = MyReplace(s, t, " gaming ");
     s = MyReplace(s, t, " omen by ");
+    s = MyReplace(s, t, "currently viewing: ");
+    s = MyReplace(s, t, " multifunction ");
 
     t = s.replace("  ", " ");
     while (t != s) {
@@ -181,9 +189,12 @@ function RunPRT(tab, str, id, sID) {
 
 function RunAIO(tab, str, id, sID)
 {
-    var url1, url2, url3;   
+    var url1, url2, url3, url4;   
+    url4 = new URL(`https://www.google.com/search`);
+    url4.searchParams.set('q', "HP " + str + ' software driver');
+    chrome.tabs.create({ url: url4.href, windowId: id, index: tab.index + 1 });
     url3 = new URL(`https://www.google.com/search`);
-    url3.searchParams.set('q',"HP " + str + ' disassembly');
+    url3.searchParams.set('q', "HP " + str + ' disassembly');
     chrome.tabs.create({ url: url3.href, windowId: id, index: tab.index + 1 });
     url2 = new URL(`https://partsurfer.hp.com`);
     url2.searchParams.set('searchtext', sID);
@@ -197,7 +208,10 @@ function RunAIO(tab, str, id, sID)
 
 function RunPC(tab, str, id, sID)
 {
-    var url1, url2;
+    var url1, url2, url3, url4;
+    url4 = new URL(`https://www.google.com/search`);
+    url4.searchParams.set('q', "HP " + str + ' software driver');
+    chrome.tabs.create({ url: url4.href, windowId: id, index: tab.index + 1 });
     url2 = new URL(`https://partsurfer.hp.com`);
     url2.searchParams.set('searchtext', sID);
     chrome.tabs.create({ url: url2.href, windowId: id, index: tab.index + 1 });
