@@ -29,7 +29,33 @@ chrome.runtime.onInstalled.addListener(async () => {
   }
 });
 
+function isNumber(value)
+{
 
+        if (isNaN(value)) {
+            return false
+        }
+        return true;
+}
+
+//14 bd0000 becomes 14-bd0000 for example
+//14m db
+//0123456
+//14 db
+function FixSpace(str)
+{
+    var n = str.indexOf(' ');
+    if (n < 2) return str; // 9- is smallest but could be 23m- or 3 chars before a missing dash
+    let s = str.substring(0, 2);
+    //return s; returned 2 digits
+    if (isNumber(s))
+    {
+        s = str.substring(0,n) + "-";
+        s += str.substring(n + 1);
+        return s;
+    }
+    return str;
+}
 
 
 //"15-xxxx (yyyyyyy)"
@@ -49,6 +75,7 @@ function HasBothItems(str)
     if (n != 8) return "";
     strID = str.substring(i + 1, j);
     strModel = str.substring(0, i).trim();
+    strModel = FixSpace(strModel);
     str = strModel + "(*)" + strID;
     if (str.length < 15) return "";
     return str;
@@ -125,6 +152,12 @@ function RemoveCommonItems(strIn)
 {
     var s = "" + strIn + " ";
     var t = s.toLowerCase();
+    var i = t.indexOf(" inch ");
+    if (i > 0)
+    {
+        s = strIn.substring(i+6);
+        t = s.toLowerCase();
+    }
     s = MyReplace(s, t, "\"");
     t = s.toLowerCase();
     s = MyReplace(s, t, "\"");
@@ -231,6 +264,7 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
     var id;
     let str1 = CurrentlyViewing(item.selectionText);
     let str = RemoveCommonItems(item.selectionText);
+    str = FixSpace(str);
     let strID = str;
     if (str1 == "") {
         let str2 = HasBothItems(str);
