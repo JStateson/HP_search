@@ -33,7 +33,7 @@ function isNumber(value)
 {
 
         if (isNaN(value)) {
-            return false
+            return false;
         }
         return true;
 }
@@ -114,11 +114,11 @@ function RemoveJunk(str) {
     str = str.trim();
     str0 = str;
 
-    //remove trailing periods or commas
+    //remove trailing periods, commas or dash
     n = str.length - 1;
     if (n < 0) return "";
     res = str.charAt(n);
-    if (res == '.' || res == ',') str0 = str.substring(0, n);
+    if (res == '.' || res == ',' || res == '-') str0 = str.substring(0, n);
 
     while (str0 != str) {
         str = str0;
