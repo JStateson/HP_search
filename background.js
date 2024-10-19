@@ -124,8 +124,37 @@ function RemoveJunk(str) {
         str = str0;
         let n = str.length - 1;
         let res = str.charAt(n);
-        if (res == '.' || res == ',') str0 = str.substring(0, n);
+        if (res == '.' || res == ',' || res == '-') str0 = str.substring(0, n);
     }
+    return str.trim();
+}
+
+function RemoveParen(str) {
+    var n = str.length, res = "", str0;
+    str = str.trim();
+    res = str.charAt(0);
+    str0 = str;
+    if (res == '.' || res == ',' || res == '(' || res == '-') str0 = str.substring(1, n);
+
+    while (str0 != str) {
+        str = str0;
+        res = str.charAt(0);
+        if (res == '.' || res == ',' || res == '(' || res == '-') str0 = str.substring(1, n);
+    }
+
+    //remove trailing periods, commas or dash
+    n = str.length - 1;
+    if (n < 0) return "";
+    res = str.charAt(n);
+    if (res == '.' || res == ',' || res == '-' || res == ')') str0 = str.substring(0, n);
+
+    while (str0 != str) {
+        str = str0;
+        n = str.length - 1;
+        res = str.charAt(n);
+        if (res == '.' || res == ',' || res == '-' || res == ')') str0 = str.substring(0, n);
+    }
+
     return str.trim();
 }
 
@@ -287,6 +316,9 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
             }
         }
     }
+
+    str = RemoveParen(str);
+    strID = RemoveParen(strID);
 
     chrome.tabs.query({
         windowId: id
