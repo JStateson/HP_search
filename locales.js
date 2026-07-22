@@ -12,6 +12,6 @@ export const tldLocales = {
   CR: 'CloudRecover',
   EB: 'eBay+surf-SNlookup',
   APrt: 'Printer NewWindow',
-  AAio: 'AIO NewWindow',
-  APc: 'PC NewWindow'
+  AAio: 'AIO-Note NewWindow',
+  APc: 'PC NewWindow',
 };

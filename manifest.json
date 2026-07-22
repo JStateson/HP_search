@@ -1,6 +1,6 @@
 {
   "name": "HP Search",
-  "description": "Lookup HP devices to solve various user problems:  Connectivity, disassembly, Specifications, spares",
+  "description": "Lookup HP devices to solve various user problems:  Connectivity, disassembly, Specifications, spares and also fix Khoros spoilers",
   "version": "2.0",
   "manifest_version": 3,
   "permissions": [ "contextMenus", "storage", "clipboardRead", "clipboardWrite", "activeTab", "scripting",  "tabs" ],

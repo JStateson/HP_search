@@ -26,16 +26,51 @@ chrome.runtime.onInstalled.addListener(async () => {
       type: 'normal',
       contexts: ['selection']
     });
-  }
+    }
+    chrome.contextMenus.create({
+        id: "FixS",
+        title: "Fix Khoros Spoilers",
+        type: "normal",
+        contexts: ["all"]
+    });
 });
+
+function FixSpoilers() {
+
+    /*
+    alert("FixSpoilers is running!");
+    alert(document.location.href);
+    alert(document.body.id);    
+    if (!editor) {
+        alert("TinyMCE editor not found.");
+        return;
+    };
+    */
+    if (document.body.id !== "tinymce")
+        return;
+
+    let html = document.body.innerHTML;
+
+    let fixed = html.replaceAll(
+        '<div class="">',
+        '<div class="lia-spoiler-container-editor">'
+    );
+
+    if (fixed !== html) {
+        document.body.innerHTML = fixed;
+
+        document.body.dispatchEvent(
+            new InputEvent("input", { bubbles: true })
+        );
+    }
+}
 
 function isNumber(value)
 {
-
         if (isNaN(value)) {
             return false;
         }
-        return true;
+    return true;
 }
 
 //14 bd0000 becomes 14-bd0000 for example
@@ -291,6 +326,17 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
     const tld = item.menuItemId;
     var url1, url2, url3, url4;
     var id;
+    if (item.menuItemId == "FixS") {
+        chrome.scripting.executeScript({
+            target: {
+                tabId: tab.id,
+                allFrames: true
+            },
+            func: FixSpoilers
+        });
+        return;
+    }
+
     let str1 = CurrentlyViewing(item.selectionText);
     let str = RemoveCommonItems(item.selectionText);
     str = FixSpace(str);
@@ -416,6 +462,9 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
                         });
                     });
                 });
+            break;
+        case "FixS":
+            
             break;
     }
 
