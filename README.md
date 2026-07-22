@@ -1,4 +1,4 @@
-# HP Search - Lookup HP devices to solve various user problems: Connectivity, disassembly, Specifications, spares
+# HP Search - Lookup HP devices to solve various user problems: Connectivity, disassembly, Specifications, spares.  Also fixes missing Khoros spoilers.
 
 ## Useful only for volunteers at the HP support community.
 
