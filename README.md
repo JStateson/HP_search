@@ -22,5 +22,5 @@ example:  Selecting the following phrase filters out "15-dw3000" and "311R08AV"
 Currently Viewing: "HP Laptop PC 15-dw3000 (31R08AV)" in "Notebook Hardware and Upgrade Que
 15-dw3000 is used in google or bing and 31R08AV is used in any HP lookup
 
-***Feb 2026: Google has change chrome and turning off developer mode disables this extension. In addition you get a warning every 2 weeks if you leave developer mode enabled.  I paid the $5 fee to try to register this extension but do not know how to register.
+***Feb 2026: Google has change chrome and turning off developer mode disables this extension. In addition you get a warning every 2 weeks if you leave developer mode enabled.  I paid the $5 fee to join the store, but have not figured out how to register the extension yet.
 
