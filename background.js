@@ -33,7 +33,41 @@ chrome.runtime.onInstalled.addListener(async () => {
         type: "normal",
         contexts: ["all"]
     });
+    chrome.contextMenus.create({
+        id: "CitRem",
+        title: "Remove Google Citations",
+        type: "normal",
+        contexts: ["all"]
+    });
 });
+
+
+
+function FixGoogleCitations() {
+
+    if (document.body.id !== "tinymce")
+        return;
+
+    const body = document.body;
+
+    // Remove citation spans that contain only numbered links
+    body.querySelectorAll("span").forEach(span => {
+
+        const links = span.querySelectorAll("a");
+
+        if (links.length > 0 &&
+            [...links].every(a => /^\d+$/.test(a.textContent.trim()))) {
+
+            span.remove();
+        }
+    });
+
+    // Remove citations already converted by Khoros
+    body.innerHTML = body.innerHTML.replace(
+        /\[\s*\d+(?:\s*,\s*\d+)*\s*\]/g,
+        ""
+    );
+}
 
 function FixSpoilers() {
 
@@ -336,6 +370,18 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
         });
         return;
     }
+
+    if (item.menuItemId == "CitRem") {
+        chrome.scripting.executeScript({
+            target: {
+                tabId: tab.id,
+                allFrames: true
+            },
+            func: FixGoogleCitations
+        });
+        return;
+    }
+
 
     let str1 = CurrentlyViewing(item.selectionText);
     let str = RemoveCommonItems(item.selectionText);

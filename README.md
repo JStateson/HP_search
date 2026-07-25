@@ -1,4 +1,4 @@
-# HP Search - Lookup HP devices to solve various user problems: Connectivity, disassembly, Specifications, spares.  Also fixes missing Khoros spoilers.
+# HP Search - Lookup HP devices to solve various user problems: Connectivity, disassembly, Specifications, spares and provide other services.
 
 ## Useful only for volunteers at the HP support community.  This is an independent community tool and is not an official HP product.
 
@@ -8,6 +8,8 @@
 4. Parts lookup goes to eBay
 5. Cloud lookup brings up the cloud recovery lookup
 6. The Printer, AIO and PC can also be launched into a new window.
+7. Khoros spoilers are fixed.
+8. Google's AI citations are removed.
 
 ## To install this extension
 
@@ -21,6 +23,9 @@
 example:  Selecting the following phrase filters out "15-dw3000" and "311R08AV"
 Currently Viewing: "HP Laptop PC 15-dw3000 (31R08AV)" in "Notebook Hardware and Upgrade Que
 15-dw3000 is used in google or bing and 31R08AV is used in any HP lookup
+7. Khoros:  Position the cursor anywhere in the post's edit box and select Fix Khoros spoilers to restore the spoiler.
+8. Copy and paste a Google or any AI response into the edit box.  Click "Remove Google Citations to strip citations IDs.
+
 
 ***Feb 2026: Google has change chrome and turning off developer mode disables this extension. In addition you get a warning every 2 weeks if you leave developer mode enabled.  I paid the $5 fee to join the store, but have not figured out how to register the extension yet.
 
