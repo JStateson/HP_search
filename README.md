@@ -23,7 +23,9 @@
 example:  Selecting the following phrase filters out "15-dw3000" and "311R08AV"
 Currently Viewing: "HP Laptop PC 15-dw3000 (31R08AV)" in "Notebook Hardware and Upgrade Que
 15-dw3000 is used in google or bing and 31R08AV is used in any HP lookup
+
 7. Khoros:  Position the cursor anywhere in the post's edit box and select Fix Khoros spoilers to restore the spoiler.
+   
 8. Copy and paste a Google or any AI response into the edit box.  Click "Remove Google Citations to strip citations IDs.
 
 
