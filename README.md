@@ -26,7 +26,7 @@ Currently Viewing: "HP Laptop PC 15-dw3000 (31R08AV)" in "Notebook Hardware and 
 
 7. Khoros:  Position the cursor anywhere in the post's edit box and select Fix Khoros spoilers to restore the spoiler.
    
-8. Copy and paste a Google AI response into the edit box.  Click "Remove Google Citations to strip citations IDs.
+8. Copy and paste a Google AI response into the edit box.  Click "Remove Google Citations to strip citations IDs.  Demo video [is here](https://stateson.net/images/DemoRemoveCitations.mp4)
 
 9. A video showing lookup of an HP printer [is here](https://stateson.net/images/DemoHPsearch.mp4)
 
