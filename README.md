@@ -31,5 +31,5 @@ Currently Viewing: "HP Laptop PC 15-dw3000 (31R08AV)" in "Notebook Hardware and 
 9. A video showing lookup of an HP printer [is here](https://stateson.net/images/DemoHPsearch.mp4)
 
 
-***Feb 2026: Google has change chrome and turning off developer mode disables this extension. In addition you get a warning every 2 weeks if you leave developer mode enabled.  I paid the $5 fee to join the store, but have not figured out how to register the extension yet.
+***Feb 2026: Google has change chrome and **turning off developer mode** disables this extension. In addition you get a warning every 2 weeks if you leave developer mode enabled.  I paid the $5 fee to join the store, but have not figured out how to register the extension yet.
 
