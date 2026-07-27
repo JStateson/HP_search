@@ -8,7 +8,7 @@ AIO/Laptop:  lookup model, parts list and disassembly help
 Desktop:  Lookup model and parts
 Printer: Lookup model, how to reset and help on network connection
 Part : lookup on eBay
-Cloud: bring up the cloud recovery page but for now you need to use "copy" to get the text onto the clipboard
+Cloud: brings up the cloud recovery page but for now you need to use "copy" to get the text onto the clipboard
 June 2024 its seems that //partsurfer.hp.com/partsurfer needs to be //partsurfer.hp.com
 July 2024 want to extract ID and model if user listed "15-xxxx (yyyyyyy)"
 there are 7 of the Y and must be 2 numeric digits minimum length of 16 characters
@@ -442,7 +442,9 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
         case "CR":
             url3 = new URL(`http://support.hp.cloud-recovery.s3-website-us-west-1.amazonaws.com`);
             chrome.tabs.create({ url: url3.href, index: tab.index + 1 });
-            // user needs to do the copy first until I can find how to push "str1"
+            // user needs to do the copy of the #ABA first until I can find how to push "str1"
+            // then a paste needs to be done to append the country code.  I do not see a way to do
+            // this automatically.The user needs to do the copy and paste.
             break;
 
         case "KB":
@@ -509,11 +511,6 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
                     });
                 });
             break;
-        case "FixS":
-            
-            break;
     }
-
-
 });
 
