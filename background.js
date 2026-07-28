@@ -12,6 +12,12 @@ Cloud: brings up the cloud recovery page but for now you need to use "copy" to g
 June 2024 its seems that //partsurfer.hp.com/partsurfer needs to be //partsurfer.hp.com
 July 2024 want to extract ID and model if user listed "15-xxxx (yyyyyyy)"
 there are 7 of the Y and must be 2 numeric digits minimum length of 16 characters
+July 2026 "My HP 17t-CN300CTO2" failed parsing as lookup provide 100+ product IDs
+reference this post https://h30434.www3.hp.com/t5/Volunteer-Lounge/My-HP-17t-CN300CTO2-laptop-will-not-power-up/m-p/9686576/highlight/false#M1366
+note that the product ID for the 17t-CN300 can be
+77L21AV - 17-c3000 RCTO
+or
+7P3Q0AV - 17-c3000 IDS Base Model
 */
 
 import { tldLocales } from './locales.js';
@@ -411,6 +417,13 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
 
     str = RemoveParen(str);
     strID = RemoveParen(strID);
+
+    // Remove CTO and everything (junk?) after it and put back in
+    let ctoIndex = strID.indexOf("CTO");
+    if (ctoIndex >= 0) {
+        strID = strID.substring(0, ctoIndex).trim() + " CTO";
+    }
+
 
     chrome.tabs.query({
         windowId: id
