@@ -27,14 +27,7 @@ const hpLocale = "us-en";   // could change to in-en for india
 // Add a listener to create the initial context menu items,
 // context menu items only need to be created at runtime.onInstalled
 chrome.runtime.onInstalled.addListener(async () => {
-  for (const [tld, locale] of Object.entries(tldLocales)) {
-    chrome.contextMenus.create({
-      id: tld,
-      title: locale,
-      type: 'normal',
-      contexts: ['selection']
-    });
-    }
+
     chrome.contextMenus.create({
         id: "FixS",
         title: "Fix Khoros Spoilers",
@@ -47,18 +40,45 @@ chrome.runtime.onInstalled.addListener(async () => {
         type: "normal",
         contexts: ["all"]
     });
+    chrome.contextMenus.create({
+        id: "separator1",
+        type: "separator",
+        contexts: ["all"]
+    });
+
+    for (const [tld, locale] of Object.entries(tldLocales)) {
+              
+
+        if (tld == "APrt") {
+            chrome.contextMenus.create({
+                id: "separator2",
+                type: "separator",
+                contexts: ["all"]
+            });
+        }
+
+
+        chrome.contextMenus.create({
+            id: tld,
+            title: locale,
+            type: 'normal',
+            contexts: ['selection']
+        });
+
+    }
 });
 
-
-
-function FixGoogleCitations() {
+//removes most markup
+function CleanGoogleAI() {
 
     if (document.body.id !== "tinymce")
         return;
 
     const body = document.body;
 
-    // Remove citation spans that contain only numbered links
+    // ---------------------------------------------------------
+    // 1. Remove Google citation spans containing only numbers
+    // ---------------------------------------------------------
     body.querySelectorAll("span").forEach(span => {
 
         const links = span.querySelectorAll("a");
@@ -69,10 +89,65 @@ function FixGoogleCitations() {
         }
     });
 
-    // Remove citations already converted by Khoros
+    // ---------------------------------------------------------
+    // 2. Remove citations already converted by Khoros
+    // ---------------------------------------------------------
     body.innerHTML = body.innerHTML.replace(
         /\[\s*\d+(?:\s*,\s*\d+)*\s*\]/g,
         ""
+    );
+
+    // ---------------------------------------------------------
+    // 3. Remove HTML comments
+    // ---------------------------------------------------------
+    body.innerHTML = body.innerHTML.replace(
+        /<!--[\s\S]*?-->/g,
+        ""
+    );
+
+    // ---------------------------------------------------------
+    // 4. Fix <strong>...</b> produced by Google
+    // ---------------------------------------------------------
+    body.innerHTML = body.innerHTML.replace(
+        /(<strong\b[^>]*>.*?)(<\/b>)/gis,
+        "$1</strong>"
+    );
+
+    // ---------------------------------------------------------
+    // 5. Remove Google wrapper elements but keep contents
+    // ---------------------------------------------------------
+    body.innerHTML = body.innerHTML.replace(
+        /<\/?(?:div|span|mark)\b[^>]*>/gi,
+        ""
+    );
+
+    // ---------------------------------------------------------
+    // 6. Remove Google's attributes from useful tags
+    // ---------------------------------------------------------
+    body.innerHTML = body.innerHTML.replace(
+        /<ul\b[^>]*>/gi,
+        "<ul>"
+    );
+
+    body.innerHTML = body.innerHTML.replace(
+        /<li\b[^>]*>/gi,
+        "<li>"
+    );
+
+    body.innerHTML = body.innerHTML.replace(
+        /<strong\b[^>]*>/gi,
+        "<strong>"
+    );
+
+    // ---------------------------------------------------------
+    // Tell TinyMCE/Khoros that the content has changed
+    // ---------------------------------------------------------
+    body.dispatchEvent(
+        new InputEvent("input", { bubbles: true })
+    );
+
+    body.dispatchEvent(
+        new Event("change", { bubbles: true })
     );
 }
 
@@ -261,9 +336,10 @@ function RemoveCommonItems(strIn)
     s = MyReplace(s, t, " notebook ");
     s = MyReplace(s, t, " printer ");
     s = MyReplace(s, t, " all-in-one ");
-    s = MyReplace(s, t, " officejet ");
-    s = MyReplace(s, t, " laserjet ");
-    s = MyReplace(s, t, " deskjet ");
+    // some printer models might show up as laptops
+    //s = MyReplace(s, t, " officejet ");
+    //s = MyReplace(s, t, " laserjet ");
+    //s = MyReplace(s, t, " deskjet ");
     s = MyReplace(s, t, " color ");
     s = MyReplace(s, t, " pavilion ");
     s = MyReplace(s, t, " convertible ");
@@ -398,10 +474,11 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
                 tabId: tab.id,
                 allFrames: true
             },
-            func: FixGoogleCitations
+            func: CleanGoogleAI
         });
         return;
     }
+
 
 
     let str1 = CurrentlyViewing(item.selectionText);
