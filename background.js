@@ -20,7 +20,9 @@ or
 7P3Q0AV - 17-c3000 IDS Base Model
 */
 
-import { tldLocales } from './locales.js';
+import { tldLocales } from './locales.js'; //note: locales here is NOT country or language code it needs to be "options" todo TO DO to do
+
+const hpLocale = "us-en";   // could change to in-en for india
 
 // Add a listener to create the initial context menu items,
 // context menu items only need to be created at runtime.onInstalled
@@ -63,7 +65,6 @@ function FixGoogleCitations() {
 
         if (links.length > 0 &&
             [...links].every(a => /^\d+$/.test(a.textContent.trim()))) {
-
             span.remove();
         }
     });
@@ -81,9 +82,7 @@ function FixSpoilers() {
     alert("FixSpoilers is running!");
     alert(document.location.href);
     alert(document.body.id);    
-    if (!editor) {
-        alert("TinyMCE editor not found.");
-        return;
+    //alerts work here because it it is running in the context of the page, not the background script
     };
     */
     if (document.body.id !== "tinymce")
@@ -98,7 +97,6 @@ function FixSpoilers() {
 
     if (fixed !== html) {
         document.body.innerHTML = fixed;
-
         document.body.dispatchEvent(
             new InputEvent("input", { bubbles: true })
         );
@@ -122,7 +120,6 @@ function FixSpace(str)
     var n = str.indexOf(' ');
     if (n < 2) return str; // 9- is smallest but could be 23m- or 3 chars before a missing dash
     let s = str.substring(0, 2);
-    //return s; returned 2 digits
     if (isNumber(s))
     {
         s = str.substring(0,n) + "-";
@@ -171,15 +168,6 @@ function HasID(str) {
     strID = str.substring(i + 1, j);
     return strID;
 }
-
-/*
-    //remove any parens anywhere
-    str0 = str.replace("(", "").replace(")", "");
-    while (str0 != str) {
-        str = str0;
-        str0 = str.replace("(", "").replace(")", "");
-    }
-*/
 
 
 // do not want any white space in the lookup
@@ -283,7 +271,7 @@ function RemoveCommonItems(strIn)
     s = MyReplace(s, t, " product: ");
     s = MyReplace(s, t, " gaming ");
     s = MyReplace(s, t, " omen by ");
-    s = MyReplace(s, t, "currently viewing: ");
+    s = MyReplace(s, t, "currently viewing: ");  //cannot have leading space
     s = MyReplace(s, t, " multifunction ");
 
     t = s.replace("  ", " ");
@@ -307,18 +295,45 @@ function CurrentlyViewing(strIn)
     return s.substring(i,j);
 }
 
+// 7/31/2026 trying to simplify tab creation
+function CreateTabs(runFunction, tab, str, strID) {
+    chrome.windows.create(
+        {
+            type: 'normal'
+        },
+        function (newWin) {
+
+            chrome.tabs.query(
+                {
+                    windowId: newWin.id
+                },
+                function (tabs) {
+
+                    // Run the appropriate routine
+                    runFunction(tab, str, newWin.id, strID);
+
+                    // Remove the blank tab Chrome created
+                    if (tabs.length > 0) {
+                        chrome.tabs.remove(tabs[0].id);
+                    }
+                }
+            );
+        }
+    );
+}
+
 //https://youtube.com/@HPSupport/search?query=deskjet%203755
-function RunPRT(tab, str, id, sID) {
+function RunPRT(tab, str, id, sID) {  // this code cleaned up with the advice of ChatGPT 7/31/2026
     var url1, url2, url3, url4;
     url4 = new URL(`https://youtube.com/@HPSupport/search?query=` + str);
     chrome.tabs.create({ url: url4.href, index: tab.index + 1 })
     url3 = new URL(`https://www.google.com/search`);
-    url3.searchParams.set('q',"HP " + str + ' youtube network connect');
+    url3.searchParams.set('q', str + ' youtube network connect');
     chrome.tabs.create({ url: url3.href, windowId: id, index: tab.index + 1 });
     url2 = new URL(`https://www.google.com/search`);
-    url2.searchParams.set('q', "HP " + str + ' printer factory reset');
+    url2.searchParams.set('q', str + ' printer factory reset');
     chrome.tabs.create({ url: url2.href, windowId: id, index: tab.index + 1 });
-    url1 = new URL(`https://support.hp.com/us-en/deviceSearch`);
+    url1 = new URL(`https://support.hp.com/${hpLocale}/deviceSearch`);
     url1.searchParams.set('q', sID);
     url1.searchParams.append('origin', 'pdp');
     chrome.tabs.create({ url: url1.href, windowId: id, index: tab.index + 1 });
@@ -326,17 +341,17 @@ function RunPRT(tab, str, id, sID) {
 
 function RunAIO(tab, str, id, sID)
 {
-    var url1, url2, url3, url4;   
+    var url1, url2, url3, url4;
     url4 = new URL(`https://www.google.com/search`);
-    url4.searchParams.set('q', "HP " + str + ' software driver');
+    url4.searchParams.set('q', str + ' software driver');
     chrome.tabs.create({ url: url4.href, windowId: id, index: tab.index + 1 });
     url3 = new URL(`https://www.google.com/search`);
-    url3.searchParams.set('q', "HP " + str + ' disassembly');
+    url3.searchParams.set('q', str + ' disassembly');
     chrome.tabs.create({ url: url3.href, windowId: id, index: tab.index + 1 });
     url2 = new URL(`https://partsurfer.hp.com`);
     url2.searchParams.set('searchtext', sID);
     chrome.tabs.create({ url: url2.href, windowId: id, index: tab.index + 1 });
-    url1 = new URL(`https://support.hp.com/us-en/deviceSearch`);
+    url1 = new URL(`https://support.hp.com/${hpLocale}/deviceSearch`);
     url1.searchParams.set('q', sID);
     url1.searchParams.append('origin', 'pdp');
     chrome.tabs.create({ url: url1.href, windowId: id, index: tab.index + 1 });
@@ -347,12 +362,12 @@ function RunPC(tab, str, id, sID)
 {
     var url1, url2, url3, url4;
     url4 = new URL(`https://www.google.com/search`);
-    url4.searchParams.set('q', "HP " + str + ' software driver');
+    url4.searchParams.set('q', str + ' software driver');
     chrome.tabs.create({ url: url4.href, windowId: id, index: tab.index + 1 });
     url2 = new URL(`https://partsurfer.hp.com`);
     url2.searchParams.set('searchtext', sID);
     chrome.tabs.create({ url: url2.href, windowId: id, index: tab.index + 1 });
-    url1 = new URL(`https://support.hp.com/us-en/deviceSearch`);
+    url1 = new URL(`https://support.hp.com/${hpLocale}/deviceSearch`);
     url1.searchParams.set('q', sID);
     url1.searchParams.append('origin', 'pdp');
     chrome.tabs.create({ url: url1.href, windowId: id, index: tab.index + 1 });
@@ -419,15 +434,17 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
     strID = RemoveParen(strID);
 
     // Remove CTO and everything (junk?) after it and put back in
+    // alert does not work here because it is running in the context of the background script, not the page
+    // console.log("strID before CTO check: " + strID); // would have worked
     let ctoIndex = strID.indexOf("CTO");
     if (ctoIndex >= 0) {
         strID = strID.substring(0, ctoIndex).trim() + " CTO";
+    }   
+
+    let HPIndex = str.indexOf("HP ");
+    if(HPIndex < 0){
+        str = "HP " + str;
     }
-
-
-    chrome.tabs.query({
-        windowId: id
-    });
 
     switch (tld)
     {
@@ -445,84 +462,45 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
 
         case "OEM":
             url3 = new URL(`https://www.google.com/search`);
-            url3.searchParams.set('q', "HP " + str);
+            url3.searchParams.set('q', str);
             chrome.tabs.create({ url: url3.href, index: tab.index + 1 });
             url2 = new URL(`https://www.google.com/search`);
-            url2.searchParams.set('q', "HP " + str + " memory finder");
+            url2.searchParams.set('q', str + " memory finder");
             chrome.tabs.create({ url: url2.href, windowId: id, index: tab.index + 1 });
             break;
 
         case "CR":
             url3 = new URL(`http://support.hp.cloud-recovery.s3-website-us-west-1.amazonaws.com`);
             chrome.tabs.create({ url: url3.href, index: tab.index + 1 });
-            // user needs to do the copy of the #ABA first until I can find how to push "str1"
-            // then a paste needs to be done to append the country code.  I do not see a way to do
-            // this automatically.The user needs to do the copy and paste.
+            // user needs to do the copy of the 1234567#ABA first until I can find how to push "str1"
+            // then a paste needs to be done to insert the product ID.  I do not see a way to do
+            // this automatically.The user needs to do the copy first, and then paste.
             break;
 
         case "KB":
             url3 = new URL(`https://h30434.www3.hp.com/t5/forums/searchpage/tab/message?advanced=false&allow_punctuation=false&q=` + str);
-            //url3.searchParams.set('q', str);
             chrome.tabs.create({ url: url3.href, index: tab.index + 1 });
             break;
 
         case "EB":
-            let str0 = "https://www.ebay.com/sch/i.html?_nkw=" + "HP " + str + "&_sacat=58058"
-            url3 = new URL(str0);
-            chrome.tabs.create({ url: url3.href, index: tab.index + 1 });
             url2 = new URL(`https://partsurfer.hp.com`);
             url2.searchParams.set('searchtext', str);
             chrome.tabs.create({ url: url2.href, windowId: id, index: tab.index + 1 });
+            let str0 = "https://www.ebay.com/sch/i.html?_nkw=" + str + "&_sacat=58058" // 58058 is the computer catagory
+            url3 = new URL(str0);
+            chrome.tabs.create({ url: url3.href, index: tab.index + 2 });
             break;
 
-        case "APrt":
-            chrome.windows.create(
-                {
-                    'type': 'normal'
-                }, function (newWin) {
-                    /* Remove the new, empty tab created by default */
-                    chrome.tabs.query({
-                        windowId: newWin.id
-                    }, function (tabsToClose) {
-                        RunPRT(tab, str, newWin.id, strID);
-                        chrome.tabs.query({currentWindow: true }, function (tabs) {
-                            chrome.tabs.remove(tabs[0].id);
-                        });
-                    });
-                });
-             break;
+        case "APrt": // cleaned up using advice from ChatGPT
+            CreateTabs(RunPRT, tab, str, strID);
+            break;
 
         case "APc":
-            chrome.windows.create(
-                {
-                    'type': 'normal'
-                }, function (newWin) {
-                    /* Remove the new, empty tab created by default */
-                    chrome.tabs.query({
-                        windowId: newWin.id
-                    }, function (tabsToClose) {
-                        RunPC(tab, str, newWin.id, strID);
-                        chrome.tabs.query({ currentWindow: true }, function (tabs) {
-                            chrome.tabs.remove(tabs[0].id);
-                        });
-                    });
-                });
+            CreateTabs(RunPC, tab, str, strID);
             break;
+
         case "AAio":
-            chrome.windows.create(
-                {
-                    'type': 'normal'
-                }, function (newWin) {
-                    /* Remove the new, empty tab created by default */
-                    chrome.tabs.query({
-                        windowId: newWin.id
-                    }, function (tabsToClose) {
-                        RunAIO(tab, str, newWin.id, strID);
-                        chrome.tabs.query({ currentWindow: true }, function (tabs) {
-                            chrome.tabs.remove(tabs[0].id);
-                        });
-                    });
-                });
+            CreateTabs(RunAIO, tab, str, strID);
             break;
     }
 });
