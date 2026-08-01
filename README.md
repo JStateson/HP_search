@@ -2,14 +2,14 @@
 
 ## Useful only for volunteers at the HP support community.  This is an independent community tool and is not an official HP product.
 
-1. Printer lookup returns Spec, How to reset and youtube network connection video
+1. Printer lookup returns Spec, How to reset, parts list and youtube network and Wi-Fi videos
 2. AIO/Laptop lookup returns Spec, Parts list and youtube disassembly
 3. PC lookup returns Spec and Parts list.
 4. Parts lookup goes to eBay
 5. Cloud lookup brings up the cloud recovery lookup
 6. The Printer, AIO and PC can also be launched into a new window.
 7. Khoros spoilers are fixed.
-8. Google's AI citations are removed.
+8. Khoros unfriendly HTML can be removed including citations.
 
 ## To install this extension
 
@@ -26,10 +26,10 @@ Currently Viewing: "HP Laptop PC 15-dw3000 (31R08AV)" in "Notebook Hardware and 
 
 7. Khoros:  Position the cursor anywhere in the post's edit box and select Fix Khoros spoilers to restore the spoiler.
    
-8. Copy and paste a Google AI response into the edit box.  Click "Remove Google Citations to strip citations IDs.  Demo video [is here](https://stateson.net/images/DemoRemoveCitations.mp4)
+8. Copy and paste (for example) a Google response into the edit box.  Click "Clean Pasted HTML to strip citations IDs.  Demo video [is here](https://stateson.net/images/DemoRemoveCitations.mp4)
 
 9. A video showing lookup of an HP printer [is here](https://stateson.net/images/DemoHPsearch.mp4)
 
 
-***Feb 2026: Google has change chrome and **turning off developer mode** disables this extension. In addition you get a warning every 2 weeks if you leave developer mode enabled.  I paid the $5 fee to join the store, but have not figured out how to register the extension yet.
+***Feb 2026: Google has change chrome and **turning off developer mode** disables this extension. You must leave developer mode enabled.
 

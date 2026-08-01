@@ -36,7 +36,7 @@ chrome.runtime.onInstalled.addListener(async () => {
     });
     chrome.contextMenus.create({
         id: "CitRem",
-        title: "Remove Google Citations",
+        title: "Clean Pasted HTML",
         type: "normal",
         contexts: ["all"]
     });
@@ -66,7 +66,7 @@ chrome.runtime.onInstalled.addListener(async () => {
     }
 });
 
-function CleanGoogleAI() {
+function CleanPastedHtml() {
 
     if (document.body.id !== "tinymce")
         return;
@@ -252,6 +252,15 @@ function HasID(str) {
     return strID;
 }
 
+//when looking up parts for printers, do not use e at end of printer name
+function DropE(str) {
+    var n = str.length - 1;
+    if (n < 0) return str;
+    var res = str.charAt(n);
+    if (res == 'e') return str.substring(0, n);
+    return str;
+}
+
 
 // do not want any white space in the lookup
 // any trailing period or comma needs to be removed
@@ -260,19 +269,19 @@ function RemoveJunk(str) {
     str = str.trim();
     str0 = str;
 
-    //remove trailing periods, commas or dash
+    //remove trailing periods, commas, dash, left parenthesis
     n = str.length - 1;
     if (n < 0) return "";
     res = str.charAt(n);
-    if (res == '.' || res == ',' || res == '-') str0 = str.substring(0, n);
-
+    if (res == '.' || res == ',' || res == '-' ) str0 = str.substring(0, n).trim();
     while (str0 != str) {
         str = str0;
         let n = str.length - 1;
         let res = str.charAt(n);
-        if (res == '.' || res == ',' || res == '-') str0 = str.substring(0, n);
+        if (res == '.' || res == ',' || res == '-' ) str0 = str.substring(0, n);
     }
-    return str.trim();
+    str = str0;
+    return str;
 }
 
 function RemoveParen(str) {
@@ -280,28 +289,29 @@ function RemoveParen(str) {
     str = str.trim();
     res = str.charAt(0);
     str0 = str;
-    if (res == '.' || res == ',' || res == '(' || res == '-') str0 = str.substring(1, n);
+    if (res == '.' || res == ',' || res == '(' || res == '-') str0 = str.substring(1, n).trim();
 
     while (str0 != str) {
         str = str0;
         res = str.charAt(0);
-        if (res == '.' || res == ',' || res == '(' || res == '-') str0 = str.substring(1, n);
+        if (res == '.' || res == ',' || res == '(' || res == '-') str0 = str.substring(1, n).trim();
     }
-
+    str = str0;
     //remove trailing periods, commas or dash
     n = str.length - 1;
     if (n < 0) return "";
     res = str.charAt(n);
-    if (res == '.' || res == ',' || res == '-' || res == ')') str0 = str.substring(0, n);
+    // trailing ( came from ENERGY STAR (ENERGY STAR)
+    if (res == '.' || res == ',' || res == '-' || res == ')' || res == '(') str0 = str.substring(0, n).trim();
 
     while (str0 != str) {
         str = str0;
         n = str.length - 1;
         res = str.charAt(n);
-        if (res == '.' || res == ',' || res == '-' || res == ')') str0 = str.substring(0, n);
+        if (res == '.' || res == ',' || res == '-' || res == ')' || res == '(') str0 = str.substring(0, n).trim();
     }
-
-    return str.trim();
+    str = str0;
+    return str;
 }
 
 
@@ -356,6 +366,7 @@ function RemoveCommonItems(strIn)
     s = MyReplace(s, t, " gaming ");
     s = MyReplace(s, t, " omen by ");
     s = MyReplace(s, t, "currently viewing: ");  //cannot have leading space
+    s = MyReplace(s, t, "energy star");
     s = MyReplace(s, t, " multifunction ");
 
     t = s.replace("  ", " ");
@@ -408,11 +419,14 @@ function CreateTabs(runFunction, tab, str, strID) {
 
 //https://youtube.com/@HPSupport/search?query=deskjet%203755
 function RunPRT(tab, str, id, sID) {  // this code cleaned up with the advice of ChatGPT 7/31/2026
-    var url1, url2, url3, url4;
-    url4 = new URL(`https://youtube.com/@HPSupport/search?query=` + str);
-    chrome.tabs.create({ url: url4.href, index: tab.index + 1 })
+    var url0, url1, url2, url3, url4, url5;
+    url5 = new URL(`https://youtube.com/@HPSupport/search?query=` + str);
+    chrome.tabs.create({ url: url5.href, index: tab.index + 1 })
+    url4 = new URL(`https://www.google.com/search`);
+    url4.searchParams.set('q', str + ' youtube network connect');
+    chrome.tabs.create({ url: url4.href, windowId: id, index: tab.index + 1 });
     url3 = new URL(`https://www.google.com/search`);
-    url3.searchParams.set('q', str + ' youtube network connect');
+    url3.searchParams.set('q', str + ' youtube Wi-Fi direct');
     chrome.tabs.create({ url: url3.href, windowId: id, index: tab.index + 1 });
     url2 = new URL(`https://www.google.com/search`);
     url2.searchParams.set('q', str + ' printer factory reset');
@@ -421,6 +435,9 @@ function RunPRT(tab, str, id, sID) {  // this code cleaned up with the advice of
     url1.searchParams.set('q', sID);
     url1.searchParams.append('origin', 'pdp');
     chrome.tabs.create({ url: url1.href, windowId: id, index: tab.index + 1 });
+    url0 = new URL(`https://partsurfer.hp.com`);
+    url0.searchParams.set('searchtext', DropE(sID));
+    chrome.tabs.create({ url: url0.href, windowId: id, index: tab.index + 1 });
 }
 
 function RunAIO(tab, str, id, sID)
@@ -482,7 +499,7 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
                 tabId: tab.id,
                 allFrames: true
             },
-            func: CleanGoogleAI
+            func: CleanPastedHtml
         });
         return;
     }
