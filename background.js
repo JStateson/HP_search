@@ -46,8 +46,7 @@ chrome.runtime.onInstalled.addListener(async () => {
         contexts: ["all"]
     });
 
-    for (const [tld, locale] of Object.entries(tldLocales)) {
-              
+    for (const [tld, locale] of Object.entries(tldLocales)) {              
 
         if (tld == "APrt") {
             chrome.contextMenus.create({
@@ -56,7 +55,6 @@ chrome.runtime.onInstalled.addListener(async () => {
                 contexts: ["all"]
             });
         }
-
 
         chrome.contextMenus.create({
             id: tld,
@@ -68,7 +66,6 @@ chrome.runtime.onInstalled.addListener(async () => {
     }
 });
 
-//removes most markup
 function CleanGoogleAI() {
 
     if (document.body.id !== "tinymce")
@@ -89,10 +86,12 @@ function CleanGoogleAI() {
         }
     });
 
+    let html = body.innerHTML;
+
     // ---------------------------------------------------------
     // 2. Remove citations already converted by Khoros
     // ---------------------------------------------------------
-    body.innerHTML = body.innerHTML.replace(
+    html = html.replace(
         /\[\s*\d+(?:\s*,\s*\d+)*\s*\]/g,
         ""
     );
@@ -100,7 +99,7 @@ function CleanGoogleAI() {
     // ---------------------------------------------------------
     // 3. Remove HTML comments
     // ---------------------------------------------------------
-    body.innerHTML = body.innerHTML.replace(
+    html = html.replace(
         /<!--[\s\S]*?-->/g,
         ""
     );
@@ -108,7 +107,7 @@ function CleanGoogleAI() {
     // ---------------------------------------------------------
     // 4. Fix <strong>...</b> produced by Google
     // ---------------------------------------------------------
-    body.innerHTML = body.innerHTML.replace(
+    html = html.replace(
         /(<strong\b[^>]*>.*?)(<\/b>)/gis,
         "$1</strong>"
     );
@@ -116,7 +115,7 @@ function CleanGoogleAI() {
     // ---------------------------------------------------------
     // 5. Remove Google wrapper elements but keep contents
     // ---------------------------------------------------------
-    body.innerHTML = body.innerHTML.replace(
+    html = html.replace(
         /<\/?(?:div|span|mark)\b[^>]*>/gi,
         ""
     );
@@ -124,24 +123,33 @@ function CleanGoogleAI() {
     // ---------------------------------------------------------
     // 6. Remove Google's attributes from useful tags
     // ---------------------------------------------------------
-    body.innerHTML = body.innerHTML.replace(
+    html = html.replace(
         /<ul\b[^>]*>/gi,
         "<ul>"
     );
 
-    body.innerHTML = body.innerHTML.replace(
+    html = html.replace(
         /<li\b[^>]*>/gi,
         "<li>"
     );
 
-    body.innerHTML = body.innerHTML.replace(
+    html = html.replace(
         /<strong\b[^>]*>/gi,
         "<strong>"
     );
 
     // ---------------------------------------------------------
-    // Tell TinyMCE/Khoros that the content has changed
+    // 7. Remove <code> tags but keep their contents
     // ---------------------------------------------------------
+    html = html.replace(
+        /<\/?code\b[^>]*>/gi,
+        ""
+    );
+
+    // Update the editor once
+    body.innerHTML = html;
+
+    // Tell TinyMCE/Khoros that the content has changed
     body.dispatchEvent(
         new InputEvent("input", { bubbles: true })
     );
