@@ -29,7 +29,7 @@ Currently Viewing: "HP Laptop PC 15-dw3000 (31R08AV)" in "Notebook Hardware and 
    
 8. Copy and paste (for example) a Google response into the edit box.  Click "Clean Pasted HTML to strip citations IDs.  Demo video [is here](https://stateson.net/images/DemoRemoveCitations.mp4)
 
-9. A video showing lookup of an HP printer [is here](https://stateson.net/images/DemoHPsearch.mp4)
+9. A video showing lookup of an HP printer [is here](https://stateson.net/images/DemoPrinterLookup.mp4)
 
 10. Demo video of the HP SupportGPT is [here](https://stateson.net/images/DemoHPsupportGPT.mp4).
 
