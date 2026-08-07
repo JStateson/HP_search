@@ -8,8 +8,9 @@
 4. Parts lookup goes to eBay
 5. Cloud lookup brings up the cloud recovery lookup
 6. The Printer, AIO and PC can also be launched into a new window.
-7. Khoros spoilers are fixed.
+7. Khoros spoilers are fixed.  Useful after pasting from a macro into a Khoros post.
 8. Khoros unfriendly HTML can be removed including citations.
+9. You can start the HP SupportGPT and ask it a question.  Unfriendly HTML is removed and the answer can be returned using a **Copy Answer** button.  You **must run the start** before every question and any previous session will be deleted.
 
 ## To install this extension
 
@@ -30,6 +31,6 @@ Currently Viewing: "HP Laptop PC 15-dw3000 (31R08AV)" in "Notebook Hardware and 
 
 9. A video showing lookup of an HP printer [is here](https://stateson.net/images/DemoHPsearch.mp4)
 
+10. Demo video of the HP SupportGPT is [here](https://stateson.net/images/DemoHPsupportGPT.mp4).
 
 ***Feb 2026: Google has change chrome and **turning off developer mode** disables this extension. You must leave developer mode enabled.
-
