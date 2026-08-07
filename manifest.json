@@ -21,7 +21,8 @@
     }
   ],
   "host_permissions": [
-    "https://virtualagent.hpcloud.hp.com/*"
+    "https://virtualagent.hpcloud.hp.com/*",
+    "https://d34z73bbtpzgej.cloudfront.net/*"
   ],
   "content_scripts": [
     {

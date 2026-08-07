@@ -27,6 +27,8 @@ Southwest Research Institute
 import { tldLocales } from './locales.js'; //note: locales here is NOT country or language code it should have been "options"
 const hpLocale = "us-en";   // could change to in-en for india
 const VirtualAgentUrl = "https://virtualagent.hpcloud.hp.com/"
+//const CloudRecoveryUrl = "http://support.hp.cloud-recovery.s3-website-us-west-1.amazonaws.com/"
+const CloudRecoveryUrl = "https://d34z73bbtpzgej.cloudfront.net/"
 
 
 // Add a listener to create the initial context menu items,
@@ -42,6 +44,12 @@ chrome.runtime.onInstalled.addListener(async () => {
     chrome.contextMenus.create({
         id: "CitRem",
         title: "Clean Pasted HTML",
+        type: "normal",
+        contexts: ["all"]
+    });
+    chrome.contextMenus.create({
+        id: "CR",
+        title: "CloudRecover",
         type: "normal",
         contexts: ["all"]
     });
@@ -602,6 +610,7 @@ function RemoveJunk(str) {
 
 function RemoveParen(str) {
     var n = str.length, res = "", str0;
+    if(n == 0)return "";
     str = str.trim();
     res = str.charAt(0);
     str0 = str;
@@ -734,6 +743,23 @@ function CreateTabs(runFunction, tab, str, strID) {
     );
 }
 
+async function WaitForTabLoad(tabId) {
+    return new Promise((resolve) => {
+
+        function listener(updatedTabId, changeInfo) {
+
+            if (updatedTabId === tabId &&
+                changeInfo.status === "complete") {
+
+                chrome.tabs.onUpdated.removeListener(listener);
+                resolve();
+            }
+        }
+
+        chrome.tabs.onUpdated.addListener(listener);
+    });
+}
+
 //https://youtube.com/@HPSupport/search?query=deskjet%203755
 function RunPRT(tab, str, id, sID) {
     var url0, url1, url2, url3, url4, url5;
@@ -852,19 +878,13 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
             type: "SEND_SUPPORTGPT_TEXT",
             text: item.selectionText
         });
-        /*
-        chrome.tabs.sendMessage(appTab.id, {
-            type: "CLICK_SUPPORTGPT"
-        })
-        */
         return;
     }
 
     if (item.menuItemId == "StartSupportGPT") {
         await StartSupportGPT();
         return;
-    }    
-
+    }
 
     let str1 = CurrentlyViewing(item.selectionText);
     let str = RemoveCommonItems(item.selectionText);
@@ -928,11 +948,32 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
             break;
 
         case "CR":
-            url3 = new URL(`http://support.hp.cloud-recovery.s3-website-us-west-1.amazonaws.com`);
-            chrome.tabs.create({ url: url3.href, index: tab.index + 1 });
-            // user needs to do the copy of the 1234567#ABA first until I can find how to push "str1"
-            // then a paste needs to be done to insert the product ID.  I do not see a way to do
-            // this automatically.The user needs to do the copy first, and then paste.
+            const listeners = new URL(CloudRecoveryUrl);
+            const CR_tab = await chrome.tabs.create({ url: listeners.href, active: true });
+            if (item.selectionText.length == 0) return;
+            await WaitForTabLoad(CR_tab.id);
+            await chrome.scripting.executeScript({
+                target: { tabId: CR_tab.id },
+                func: async (productId) => {
+
+                    const form = document.querySelector("input.table-text").closest("form");
+                    const input = document.querySelector("input.table-text");
+                    const setter = Object.getOwnPropertyDescriptor(
+                        HTMLInputElement.prototype,
+                        "value"
+                    ).set;
+
+                    setter.call(input, productId);
+                    input.dispatchEvent(new Event("input", { bubbles: true }));
+                    input.dispatchEvent(new Event("change", { bubbles: true }));
+
+                    // Give the page one event loop to update its state.
+                    await new Promise(resolve => setTimeout(resolve, 250));
+                    form.requestSubmit();
+
+                },
+                args: [item.selectionText]   // your 11-character Product ID
+            });
             break;
 
         case "KB":

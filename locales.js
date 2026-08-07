@@ -9,7 +9,6 @@ export const tldLocales = {
   PC: 'PC Desktop',
   OEM: 'Part# memory finder',
   KB: 'HP KB lookup',
-  CR: 'CloudRecover',
   EB: 'eBay+surf-SNlookup',
   APrt: 'Printer NewWindow',
   AAio: 'AIO-Note NewWindow',
