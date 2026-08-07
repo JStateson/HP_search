@@ -6,7 +6,7 @@
 2. AIO/Laptop lookup returns Spec, Parts list and youtube disassembly
 3. PC lookup returns Spec and Parts list.
 4. Parts lookup goes to eBay
-5. Cloud lookup looks up a product ID to see if it is supported. Demo video [is here](https://stateson.net/images/CloudSupport.mp4)
+5. Cloud lookup looks up a product ID to see if it is supported. Demo video [is here](https://stateson.net/images/DemoCloudSupport.mp4)
 6. The Printer, AIO and PC can also be launched into a new window.
 7. Khoros spoilers are fixed.  Useful after pasting from a macro into a Khoros post.
 8. Khoros unfriendly HTML can be removed including citations.
