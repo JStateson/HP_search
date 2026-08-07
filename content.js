@@ -56,9 +56,7 @@ window.addEventListener("message", function (event) {
     if (event.data.source === "HP_Search" &&
         event.data.type === "HP_ANSWER_HELP") {
 
-        console.log("HP_Search: content.js received 
-
-answer");
+        console.log("HP_Search: content.js received answer");
 
         chrome.runtime.sendMessage({    // send message to background.js
             type: "HP_ANSWER",
