@@ -473,6 +473,24 @@ function CleanPastedHtml() { // designed for Google Docs to Khoros copy/paste bu
         a.rel = "noopener";
     });
 
+    // Remove trailing empty bullet/list items
+    body.querySelectorAll("ul, ol").forEach(list => {
+        const items = list.querySelectorAll(":scope > li");
+
+        if (items.length === 0)
+            return;
+
+        const last = items[items.length - 1];
+
+        if (last.textContent.trim() === "") {
+            last.remove();
+        }
+
+        // Remove the list itself if it is now empty
+        if (list.children.length === 0) {
+            list.remove();
+        }
+    });
     // Tell TinyMCE/Khoros that the content has changed
     body.dispatchEvent(
         new InputEvent("input", { bubbles: true })
@@ -950,7 +968,15 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
         case "CR":
             const listeners = new URL(CloudRecoveryUrl);
             const CR_tab = await chrome.tabs.create({ url: listeners.href, active: true });
-            if (item.selectionText.length == 0) return;
+
+            let productId = item.selectionText.trim();
+            const pattern = /^[A-Za-z0-9]{7}#[A-Za-z0-9]{3}$/;
+            if (!pattern.test(productId)) {
+                productId = "";
+            }
+            if (productId === "")
+                return;
+
             await WaitForTabLoad(CR_tab.id);
             await chrome.scripting.executeScript({
                 target: { tabId: CR_tab.id },
@@ -972,7 +998,7 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
                     form.requestSubmit();
 
                 },
-                args: [item.selectionText]   // your 11-character Product ID
+                args: [productId]   // your 11-character Product ID
             });
             break;
 
