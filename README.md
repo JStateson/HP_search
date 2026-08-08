@@ -33,4 +33,6 @@ Currently Viewing: "HP Laptop PC 15-dw3000 (31R08AV)" in "Notebook Hardware and 
 
 10. Demo video of the HP SupportGPT is [here](https://stateson.net/images/DemoHPsupportGPT.mp4).
 
+11. **WARNING** please review **ISSUES** before installing the extension.  Feel free to create an issue is there is a problem.
+
 ***Feb 2026: Google has change chrome and **turning off developer mode** disables this extension. You must leave developer mode enabled.
