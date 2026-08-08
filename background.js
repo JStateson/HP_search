@@ -29,7 +29,7 @@ const hpLocale = "us-en";   // could change to in-en for india
 const VirtualAgentUrl = "https://virtualagent.hpcloud.hp.com/"
 //const CloudRecoveryUrl = "http://support.hp.cloud-recovery.s3-website-us-west-1.amazonaws.com/"
 const CloudRecoveryUrl = "https://d34z73bbtpzgej.cloudfront.net/"
-
+let supportGPTActive = false;
 
 // Add a listener to create the initial context menu items,
 // context menu items only need to be created at runtime.onInstalled
@@ -68,6 +68,12 @@ chrome.runtime.onInstalled.addListener(async () => {
     chrome.contextMenus.create({
         id: "AskSupportGPT",
         title: "Ask Support GPT",
+        type: "normal",
+        contexts: ["all"]
+    });
+    chrome.contextMenus.create({
+        id: "StopSupportGPT",
+        title: "Stop Support GPT",
         type: "normal",
         contexts: ["all"]
     });
@@ -223,12 +229,15 @@ async function StartSupportGPT() {
         supportGPTTabId: newTab.id
     });
 
+    supportGPTActive = true;
+
     // Wait for the page to load...
 }
 
 
 
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+    if (!supportGPTActive) return;
     const saved = await chrome.storage.local.get("supportGPTTabId");
     const hpTabId = saved.supportGPTTabId;
 
@@ -882,7 +891,14 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
         return;
     }
 
+    if (item.menuItemId == "StopSupportGPT") {
+        supportGPTActive = false;
+    }
+
     if (item.menuItemId == "AskSupportGPT") {
+        if (!supportGPTActive) {
+            return;
+        }
         console.log("HP_SEARCH current forum tab ", tab.id);
         const appTab = await GetAppTab();
         console.log("HP_SEARCH appTab ID:", appTab.id);
