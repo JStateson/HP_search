@@ -10,7 +10,7 @@
 6. The Printer, AIO and PC can also be launched into a new window.
 7. Khoros spoilers are fixed.  Useful after pasting from a macro into a Khoros post.
 8. Khoros unfriendly HTML can be removed including citations.
-9. You can start the HP SupportGPT and ask it a question.  Unfriendly HTML is removed and the answer can be returned using a **Copy Answer** button.  You **must run the start** before every question and any previous session will be deleted.
+9. You can start the HP SupportGPT and ask it a question.  Unfriendly Khoros HTML is removed and the answer can be returned using a **Copy Answer** button.  You **must run the start** before every question and any previous session will be deleted.  You should select **Stop SupportGPT** when no longer using SupportGPT to answer questions in any Khorus enabled forum.
 
 ## To install this extension
 
