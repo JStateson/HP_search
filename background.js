@@ -688,7 +688,7 @@ function MyReplace(sIN, sLC, sP) {
 // MyReplace does not change var t so duplicate require additional t = s 
 function RemoveCommonItems(strIn)
 {
-    var s = "" + strIn + " ";
+    var s = " " + strIn + " ";
     var t = s.toLowerCase();
     var i = t.indexOf(" inch ");
     if (i > 0)
@@ -696,6 +696,7 @@ function RemoveCommonItems(strIn)
         s = strIn.substring(i+6);
         t = s.toLowerCase();
     }
+    s = MyReplace(s, t, " tags:");
     s = MyReplace(s, t, "\"");
     t = s.toLowerCase();
     s = MyReplace(s, t, "\"");
@@ -707,7 +708,7 @@ function RemoveCommonItems(strIn)
     s = MyReplace(s, t, " notebook ");
     s = MyReplace(s, t, " printer ");
     s = MyReplace(s, t, " all-in-one ");
-    // some printer models might show up as laptops
+    // removed as some printer models might show up as laptops
     //s = MyReplace(s, t, " officejet ");
     //s = MyReplace(s, t, " laserjet ");
     //s = MyReplace(s, t, " deskjet ");
@@ -718,8 +719,8 @@ function RemoveCommonItems(strIn)
     s = MyReplace(s, t, " product: ");
     s = MyReplace(s, t, " gaming ");
     s = MyReplace(s, t, " omen by ");
-    s = MyReplace(s, t, "currently viewing: ");  //cannot have leading space
-    s = MyReplace(s, t, "energy star");
+    s = MyReplace(s, t, " currently viewing: ");
+    s = MyReplace(s, t, " energy star");
     s = MyReplace(s, t, " multifunction ");
 
     t = s.replace("  ", " ");
@@ -727,6 +728,7 @@ function RemoveCommonItems(strIn)
         s = t;
         t = s.replace("  ", " ");
     }
+    console.log("RemoveCommonItems: s=" + s);
     return RemoveJunk(s);
 }
 
@@ -821,7 +823,7 @@ function RunAIO(tab, str, id, sID)
     url3.searchParams.set('q', Add_HP(str) + ' disassembly');
     chrome.tabs.create({ url: url3.href, windowId: id, index: tab.index + 1 });
     url2 = new URL(`https://partsurfer.hp.com`);
-    url2.searchParams.set('searchtext', sID);
+    url2.searchParams.set('searchtext', RemoveCountryCode(sID));
     chrome.tabs.create({ url: url2.href, windowId: id, index: tab.index + 1 });
     url1 = new URL(`https://support.hp.com/${hpLocale}/deviceSearch`);
     url1.searchParams.set('q', sID);
@@ -837,7 +839,7 @@ function RunPC(tab, str, id, sID)
     url4.searchParams.set('q', Add_HP(str) + ' software driver');
     chrome.tabs.create({ url: url4.href, windowId: id, index: tab.index + 1 });
     url2 = new URL(`https://partsurfer.hp.com`);
-    url2.searchParams.set('searchtext', sID);
+    url2.searchParams.set('searchtext', RemoveCountryCode(sID));
     chrome.tabs.create({ url: url2.href, windowId: id, index: tab.index + 1 });
     url1 = new URL(`https://support.hp.com/${hpLocale}/deviceSearch`);
     url1.searchParams.set('q', sID);
@@ -860,6 +862,13 @@ function Rem_HP(str) {
     }
     return str;
 }
+
+function RemoveCountryCode(phrase) {
+    return phrase.length === 11 && /#[A-Za-z0-9]{3}$/.test(phrase)
+        ? phrase.slice(0, 7)
+        : phrase;
+}
+
 // jstateson:  extract product ID xxxxx from (xxxxx)
 //  (HP M01-F2248nf)  changes to HP M01-F2248nf
 // white spaces are dropped before and after the text
@@ -1025,7 +1034,7 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
 
         case "EB":
             url2 = new URL(`https://partsurfer.hp.com`);
-            url2.searchParams.set('searchtext', str);
+            url2.searchParams.set('searchtext', RemoveCountryCode(str));
             chrome.tabs.create({ url: url2.href, windowId: id, index: tab.index + 1 });
             let str0 = "https://www.ebay.com/sch/i.html?_nkw=" + Add_HP(str) + "&_sacat=58058" // 58058 is the computer catagory
             url3 = new URL(str0);
