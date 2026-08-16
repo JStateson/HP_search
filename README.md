@@ -9,7 +9,7 @@
 5. Cloud lookup looks up a product ID to see if it is supported. Demo video [is here](https://stateson.net/images/DemoCloudSupport.mp4)
 6. The Printer, AIO and PC can also be launched into a new window.
 7. Khoros spoilers are fixed.  Useful after pasting from a macro into a Khoros post.
-8. Khoros unfriendly HTML can be removed including citations.
+8. Khoros unfriendly HTML can be cleaned, citations removed, and put into a spoiler.
 9. You can start the HP SupportGPT and ask it a question.  Unfriendly Khoros HTML is removed and the answer can be returned using a **Copy Answer** button.  You **must run the start** before every question and any previous session will be deleted.  You should select **Stop SupportGPT** when no longer using SupportGPT to answer questions in any Khorus enabled forum.
 
 ## To install this extension
@@ -27,12 +27,14 @@ Currently Viewing: "HP Laptop PC 15-dw3000 (31R08AV)" in "Notebook Hardware and 
 
 7. Khoros:  Position the cursor anywhere in the post's edit box and select Fix Khoros spoilers to restore the spoiler.
    
-8. Copy and paste (for example) a Google response into the edit box.  Click "Clean Pasted HTML to strip citations IDs.  Demo video [is here](https://stateson.net/images/DemoRemoveCitations.mp4)
+8. Copy and paste (for example) a Google response into the edit box.  Click "Clean Pasted HTML" Demo video [is here](https://stateson.net/images/DemoRemoveCitations.mp4)
 
-9. A video showing lookup of an HP printer [is here](https://stateson.net/images/DemoPrinterLookup.mp4)
+9. A demo video showing the spoiler feature is [here](https://stateson.net/images/DemoPutCleanedIntoSpoiler.mp4)
+ 
+10. A video showing lookup of an HP printer [is here](https://stateson.net/images/DemoPrinterLookup.mp4)
 
-10. Demo video of the HP SupportGPT is [here](https://stateson.net/images/DemoHPsupportGPT.mp4).
+11. Demo video of the HP SupportGPT [is here](https://stateson.net/images/DemoHPsupportGPT.mp4).
 
-11. **WARNING** please review **ISSUES** before installing the extension.  Feel free to create an issue is there is a problem.
+12. **WARNING** please review **ISSUES** before installing the extension.  Feel free to create an issue is there is a problem.
 
 ***Feb 2026: Google has change chrome and **turning off developer mode** disables this extension. You must leave developer mode enabled.
