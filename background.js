@@ -48,6 +48,12 @@ chrome.runtime.onInstalled.addListener(async () => {
         contexts: ["all"]
     });
     chrome.contextMenus.create({
+        id: "PutInSpoiler",
+        title: "Put selected text into Spoiler",
+        type: "normal",
+        contexts: ["all"]
+    });
+    chrome.contextMenus.create({
         id: "CR",
         title: "CloudRecover",
         type: "normal",
@@ -318,73 +324,69 @@ function RunSupportGPT(activity) {
 
 }
 
-// Extract SOURCES from SupportGPT HTML and put them into a spoiler
-function PutRefsIntoSpoiler(html) {
-    const div = document.createElement("div");
-    div.innerHTML = html;
+function PutSelectedIntoSpoiler() {
+    const selection = window.getSelection();
 
-    const sourcesHeader = [...div.querySelectorAll("h4")]
-        .find(h => h.textContent.trim() === "SOURCES");
-
-    if (!sourcesHeader) {
-        console.log("HP_Search: No SOURCES found");
-        return html;
+    if (!selection || selection.rangeCount === 0) {
+        //console.log("HP_Search: No selection");
+        return;
     }
 
-    let references = "";
+    const range = selection.getRangeAt(0);
 
-    let node = sourcesHeader.nextElementSibling;
-
-    while (node) {
-        references += node.outerHTML;
-        const next = node.nextElementSibling;
-        node.remove();   // remove from original document
-        node = next;
+    if (range.collapsed) {
+        //console.log("HP_Search: Selection is empty");
+        return;
     }
 
-    // Remove the SOURCES heading itself
-    sourcesHeader.remove();
+    const fragment = range.cloneContents();
 
+    // ---------------------------------------------------------
+    // Remove empty list items from the selected content
+    // ---------------------------------------------------------
+    fragment.querySelectorAll("li").forEach(li => {
+        if (li.textContent.replace(/\u00a0/g, "").trim() === "") {
+            li.remove();
+        }
+    });
+
+    // Remove lists that became empty
+    fragment.querySelectorAll("ul, ol").forEach(list => {
+        if (list.querySelectorAll(":scope > li").length === 0) {
+            list.remove();
+        }
+    });
+
+    // ---------------------------------------------------------
+    // Put the selected content into the spoiler
+    // ---------------------------------------------------------
     const spoiler = document.createElement("div");
     spoiler.className = "lia-spoiler-container-editor";
-    spoiler.innerHTML = `
-        Expand spoiler for references
-        <br>
-        ${references}
-    `;
 
-    // Put spoiler where SOURCES used to be
-    div.appendChild(spoiler);
+    spoiler.appendChild(fragment);
 
-    return CleanSupportGPTHtml(div.innerHTML);
+    range.deleteContents();
+    range.insertNode(spoiler);
+
+    // Clean up list fragments created at the selection boundary
+    document.body.querySelectorAll("li").forEach(li => {
+        if (li.textContent.replace(/\u00a0/g, "").trim() === "") {
+            li.remove();
+        }
+    });
+
+    document.body.querySelectorAll("ul, ol").forEach(list => {
+        if (list.querySelectorAll(":scope > li").length === 0) {
+            list.remove();
+        }
+    });
+
+    selection.removeAllRanges();
+
+    //console.log("HP_Search: Selected content:", spoiler.outerHTML);
 }
 
-// Clean up the HTML from SupportGPT to make it suitable for Khoros (do not want a warning about html)
-function CleanSupportGPTHtml(html) {
-
-    const div = document.createElement("div");
-    div.innerHTML = html;
-
-    // Remove all <code> tags but keep their contents
-    div.querySelectorAll("code").forEach(code => {
-        code.replaceWith(...code.childNodes);
-    });
-
-    // Remove id="answer" (or any id attributes)
-    div.querySelectorAll("#answer").forEach(element => {
-        element.removeAttribute("id");
-    });
-
-    // Fix links so Khoros does not rewrite them
-    div.querySelectorAll("a").forEach(a => {
-        a.setAttribute("target", "_blank");
-        a.setAttribute("rel", "noopener");
-    });
-
-    return div.innerHTML;
-}
-
-function CleanPastedHtml() { // designed for Google Docs to Khoros copy/paste but should work for other sources as well
+function CleanPastedHtml(option) { // designed for Google Docs to Khoros copy/paste but should work for other sources as well
 
     if (document.body.id !== "tinymce")
         return;
@@ -464,8 +466,15 @@ function CleanPastedHtml() { // designed for Google Docs to Khoros copy/paste bu
         ""
     );
 
-    // Update the editor once
-    body.innerHTML = html;
+    if (option === "spoiler") {
+        body.innerHTML = "<div class='lia-spoiler-container-editor'>" +
+            html +
+            "</div>";
+    }
+    else {
+        body.innerHTML = html;
+    }
+
 
     // switch to DOM manipulation for the rest of the cleanup
     body.querySelectorAll("a").forEach(a => {
@@ -482,24 +491,26 @@ function CleanPastedHtml() { // designed for Google Docs to Khoros copy/paste bu
         a.rel = "noopener";
     });
 
-    // Remove trailing empty bullet/list items
-    body.querySelectorAll("ul, ol").forEach(list => {
-        const items = list.querySelectorAll(":scope > li");
+    // ---------------------------------------------------------
+    // Remove empty bullet/list items
+    // ---------------------------------------------------------
+    body.querySelectorAll("li").forEach(li => {
 
-        if (items.length === 0)
-            return;
-
-        const last = items[items.length - 1];
-
-        if (last.textContent.trim() === "") {
-            last.remove();
+        // Remove whitespace, including &nbsp;
+        if (li.textContent.replace(/\u00a0/g, "").trim() === "") {
+            li.remove();
         }
+    });
 
-        // Remove the list itself if it is now empty
-        if (list.children.length === 0) {
+    // Remove lists that are now empty
+    body.querySelectorAll("ul, ol").forEach(list => {
+
+        if (list.querySelectorAll(":scope > li").length === 0) {
             list.remove();
         }
     });
+
+
     // Tell TinyMCE/Khoros that the content has changed
     body.dispatchEvent(
         new InputEvent("input", { bubbles: true })
@@ -895,10 +906,25 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
                 tabId: tab.id,
                 allFrames: true
             },
-            func: CleanPastedHtml
+            func: CleanPastedHtml,
+            args: [""]
         });
         return;
     }
+
+    if (item.menuItemId == "PutInSpoiler") {
+        chrome.scripting.executeScript({
+            target: {
+                tabId: tab.id,
+                allFrames: true
+            },
+            func: PutSelectedIntoSpoiler
+            //func: CleanPastedHtml,
+            //args: ["spoiler"]
+        });
+        return;
+    }
+
 
     if (item.menuItemId == "StopSupportGPT") {
         supportGPTActive = false;
@@ -994,11 +1020,37 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
             const listeners = new URL(CloudRecoveryUrl);
             const CR_tab = await chrome.tabs.create({ url: listeners.href, active: true });
 
+            /*
+
             let productId = item.selectionText.trim();
             const pattern = /^[A-Za-z0-9]{7}#[A-Za-z0-9]{3}$/;
             if (!pattern.test(productId)) {
                 productId = "";
             }
+
+            */
+
+
+            let productId = item.selectionText.trim();
+
+            // First look for exactly (CCCCCCC), where C is alphanumeric
+            const parenthesized = productId.match(/\(([A-Za-z0-9]{7})\)/);
+
+            if (parenthesized) {
+                productId = parenthesized[1] + "#ABA";
+            }
+            else {
+                // Remove punctuation if the selected text is longer than 11 characters
+                if (productId.length > 11) {
+                    productId = productId.replace(/[^A-Za-z0-9#]/g, "");
+                }
+
+                // Validate the resulting Product ID
+                if (!/^[A-Za-z0-9]{7}#[A-Za-z0-9]{3}$/.test(productId)) {
+                    productId = "";
+                }
+            }
+
             if (productId === "")
                 return;
 
@@ -1019,7 +1071,7 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
                     input.dispatchEvent(new Event("change", { bubbles: true }));
 
                     // Give the page one event loop to update its state.
-                    await new Promise(resolve => setTimeout(resolve, 250));
+                    await new Promise(resolve => setTimeout(resolve, 500));
                     form.requestSubmit();
 
                 },
