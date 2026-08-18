@@ -7,6 +7,7 @@
 3. PC lookup returns Spec and Parts list.
 4. Parts lookup goes to eBay
 5. Cloud lookup looks up a product ID to see if it is supported. Demo video [is here](https://stateson.net/images/DemoCloudSupport.mp4)
+   If the country code is missing it will be looked up using [this table](https://h30434.www3.hp.com/t5/Notebooks-Knowledge-Base/List-of-known-country-codes-gathered-from-the-internet/ta-p/9155615).  Demo video is [is here](https://stateson.net/images/DemoCountryCloudLookup.mp4)
 6. The Printer, AIO and PC can also be launched into a new window.
 7. Khoros spoilers are fixed.  Useful after pasting from a macro into a Khoros post.
 8. Khoros unfriendly HTML can be cleaned, citations removed, and put into a spoiler.

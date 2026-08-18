@@ -53,6 +53,12 @@ chrome.runtime.onInstalled.addListener(async () => {
         type: "normal",
         contexts: ["all"]
     });
+        chrome.contextMenus.create({
+        id: "CopyKhorosHtml",
+        title: "Copy Khoros to Clipboard",
+        type: "normal",
+        contexts: ["all"]
+    });
     chrome.contextMenus.create({
         id: "CR",
         title: "CloudRecover",
@@ -107,6 +113,173 @@ chrome.runtime.onInstalled.addListener(async () => {
         });
     }
 });
+
+const hpCountryTable = [
+    ["#A2M", "Iceland", "Iceland"],
+    ["#A2N", "Saudi Arabia", "Saudi Arabia"],
+    ["#A2Q", "Ukraine", "Ukraine"],
+    ["#AB0", "Taiwan", "Taiwan"],
+    ["#AB1", "Korea", "Korea"],
+    ["#AB2", "China", "China"],
+    ["#AB4", "Singapore", "Singapore"],
+    ["#AB4", "Malaysia", "Malaysia"],
+    ["#AB5", "Hong Kong", "Hong Kong"],
+    ["#ABV", "Arabia", "Arabia (English)"],
+    ["#AB6", "Arabia", "Arabia (French)"],
+    ["#AB7", "Greece", "Greece"],
+    ["#AB8", "Turkey", "Turkey"],
+    ["#AB9", "Portugal", "Portugal"],
+    ["#ABA", "US", "US"],
+    ["#ABB", "Europe", "Europe"],
+    ["#ABL", "Canada", "Canada (English)"],
+    ["#ABC", "Canada", "Canada (French)"],
+    ["#ABD", "Germany", "Germany"],
+    ["#ABE", "Spain", "Spain"],
+    ["#ABF", "France", "France"],
+    ["#ABG", "Australia", "Australia"],
+    ["#ABH", "Netherlands", "Netherlands"],
+    ["#ABJ", "Japan", "Japan"],
+    ["#ABM", "L A", "L A (Spanish)"],
+    ["#B16", "LA", "LA (Spanish)"],
+    ["#ABN", "Norway", "Norway"],
+    ["#ABS", "Sweden", "Sweden (Swedish)"],
+    ["#ACY", "Sweden", "Sweden (English)"],
+    ["#AK8", "Sweden", "Sweden (Finnish)"],
+    ["#ABT", "Hebrew", "Hebrew"],
+    ["#ABU", "UK", "UK (English)"],
+    ["#ABV", "Arabia", "Arabia (English)"],
+    ["#UUG", "Belgium", "Belgium (French)"],
+    ["#ABW", "Belgium", "Belgium (Flemish)"],
+    ["#ABX", "Finland", "Finland"],
+    ["#ABY", "Denmark", "Denmark"],
+    ["#ABZ", "Italy", "Italy"],
+    ["#AC4", "Brazil", "Brazil"],
+    ["#AC8", "Argentina", "Argentina (Spanish)"],
+    ["#ACB", "Russia", "Russia"],
+    ["#ACJ", "India", "India"],
+    ["#ACQ", "South Africa", "South Africa"],
+    ["#AH3", "Palestine", "Palestine (English)"],
+    ["#AKB", "Czech", "Czech"],
+    ["#AKC", "Hungary", "Hungary"],
+    ["#AKD", "Poland", "Poland"],
+    ["#AKE", "Romania", "Romania Romanian"],
+    ["#AKG", "Eastern Europe", "Eastern Europe"],
+    ["#AKJ", "Hebrew", "Hebrew (English)"],
+    ["#AKL", "Thailand", "Thailand"],
+    ["#AKN", "Slovenia", "Slovenia"],
+    ["#AKQ", "Serbia", "Serbia Serbian"],
+    ["#AKR", "Slovakia", "Slovakia"],
+    ["#AKS", "Bulgaria", "Bulgaria English"],
+    ["#AKV", "South America", "South America (Spanish)"],
+    ["#AR6", "Indonesia", "Indonesia (English)"],
+    ["#ARE", "Malaysia", "Malaysia English"],
+    ["#ARL", "Baltic", "Baltic"],
+    ["#BH4", "Africa", "Africa (English)"],
+    ["#B10", "Africa", "Africa (Portuguese)"],
+    ["#B1R", "Baltics", "Baltics Estonia"],
+    ["#B1R", "Estonia", "Estonia"],
+    ["#BCM", "Ukraine", "Ukraine"],
+    ["#BED", "Adriatics", "Adriatics"],
+    ["#BH5", "kenya", "kenya"],
+    ["#BJA", "Kazakhstan", "Kazakhstan (Russian)"],
+    ["#UUF", "Asia Pacific", "Asia Pacific (English)"],
+    ["#UUW", "Skandinavien", "Skandinavien"],
+    ["#UUZ", "Switzerland", "Switzerland"],
+    ["#ABP", "Switzerland", "Swiss (German)"],
+    ["#ABQ", "Switzerland", "Swiss (French)"]
+];
+
+function findHpCountry(country) {
+    const matches = hpCountryTable.filter(
+        entry =>
+            entry[1].trim().toLowerCase() ===
+            country.trim().toLowerCase()
+    );
+
+    if (matches.length === 0) {
+        console.log(
+            "HP country not in table:",
+            country
+        );
+
+        return null;
+    }
+
+    return {
+        lookupCode: matches[0][0],
+        matches: matches
+    };
+}
+
+function GetHpLocation() {
+    const locationElement =
+        document.querySelector(".user-location-wrap span");
+
+    if (!locationElement)
+        return null;
+
+    return {
+        country: locationElement.textContent.trim(),
+        iso: locationElement.getAttribute("title")
+    };
+}
+
+function ShowHpLanguages(country, matches) {
+
+    // Remove an existing panel
+    document.getElementById("hp-language-panel")?.remove();
+
+    const panel = document.createElement("div");
+
+    panel.id = "hp-language-panel";
+
+    panel.style.position = "fixed";
+    panel.style.top = "20px";
+    panel.style.right = "20px";
+    panel.style.zIndex = "2147483647";
+    panel.style.background = "white";
+    panel.style.border = "2px solid black";
+    panel.style.padding = "12px";
+    panel.style.fontFamily = "Arial, sans-serif";
+    panel.style.fontSize = "14px";
+    panel.style.boxShadow = "0 2px 10px rgba(0,0,0,.3)";
+
+    let html =
+        "<b>HP Location: " + country + "</b><br><br>";
+
+    matches.forEach((entry, index) => {
+
+        const code = entry[0];
+        const description = entry[2];
+
+        if (index === 0) {
+            html +=
+                "<b>PRIMARY:</b> " +
+                code + " - " +
+                description +
+                "<br>";
+        }
+        else {
+            html +=
+                code + " - " +
+                description +
+                "<br>";
+        }
+    });
+
+    html +=
+        "<br><button id='hp-language-close'>Close</button>";
+
+    panel.innerHTML = html;
+
+    document.body.appendChild(panel);
+
+    document
+        .getElementById("hp-language-close")
+        .addEventListener("click", () => {
+            panel.remove();
+        });
+}
 
 async function GetAppTab() {
     const urlToFind = VirtualAgentUrl;
@@ -739,7 +912,7 @@ function RemoveCommonItems(strIn)
         s = t;
         t = s.replace("  ", " ");
     }
-    console.log("RemoveCommonItems: s=" + s);
+    //console.log("RemoveCommonItems: s=" + s);
     return RemoveJunk(s);
 }
 
@@ -880,6 +1053,110 @@ function RemoveCountryCode(phrase) {
         : phrase;
 }
 
+async function CopyKhorosHtml() {
+
+    const selection = window.getSelection();
+
+    if (!selection || selection.rangeCount === 0) {
+        //console.log("CopyKhorosHtml: No selection");
+        return;
+    }
+
+    if (selection.isCollapsed) {
+        //console.log("CopyKhorosHtml: Selection is empty");
+        return;
+    }
+
+    const range = selection.getRangeAt(0);
+
+    // Clone the selected HTML.
+    const fragment = range.cloneContents();
+
+    const div = document.createElement("div");
+    div.appendChild(fragment);
+
+    // ------------------------------------------------------------
+    // Convert Khoros-style image elements to the original form.
+    // ------------------------------------------------------------
+
+    div.querySelectorAll("img").forEach(oldImg => {
+
+        const src = oldImg.getAttribute("src");
+
+        if (!src)
+            return;
+
+        const newImg = document.createElement("img");
+
+        newImg.setAttribute("src", src);
+
+        oldImg.replaceWith(newImg);
+    });
+
+    /* possibly this was caused by using ENTER instead of SHIFT+ENTER.
+    I may need the below code for a while longer*/
+
+    if (true) {
+
+        // Remove empty paragraphs created by Khoros/TinyMCE.
+        div.querySelectorAll("p").forEach(p => {
+
+            const text = p.textContent
+                .replace(/\u00a0/g, "")
+                .trim();
+
+            const html = p.innerHTML
+                .replace(/&nbsp;/gi, "")
+                .replace(/<br\s*\/?>/gi, "")
+                .trim();
+
+            if (text === "" && html === "") {
+                p.remove();
+            }
+        });
+    }
+
+    
+    // Get the cleaned HTML.
+    const html = div.innerHTML;
+
+    // Plain text version.
+    const plainText = div.textContent;
+
+    //console.log("CopyKhorosHtml:");
+    //console.log(html);
+
+    // ------------------------------------------------------------
+    // Copy both formats to the Windows clipboard.
+    // ------------------------------------------------------------
+
+    try {
+
+        await navigator.clipboard.write([
+            new ClipboardItem({
+                "text/html": new Blob(
+                    [html],
+                    { type: "text/html" }
+                ),
+
+                "text/plain": new Blob(
+                    [plainText],
+                    { type: "text/plain" }
+                )
+            })
+        ]);
+
+        console.log("CopyKhorosHtml: Clipboard updated");
+    }
+    catch (error) {
+
+        console.error(
+            "CopyKhorosHtml: Clipboard write failed:",
+            error
+        );
+    }
+}
+
 // jstateson:  extract product ID xxxxx from (xxxxx)
 //  (HP M01-F2248nf)  changes to HP M01-F2248nf
 // white spaces are dropped before and after the text
@@ -896,6 +1173,17 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
                 allFrames: true
             },
             func: FixSpoilers
+        });
+        return;
+    }
+
+    if (item.menuItemId == "CopyKhorosHtml") {
+        chrome.scripting.executeScript({
+            target: {
+                tabId: tab.id,
+                allFrames: true
+            },
+            func: CopyKhorosHtml
         });
         return;
     }
@@ -928,6 +1216,7 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
 
     if (item.menuItemId == "StopSupportGPT") {
         supportGPTActive = false;
+        return;
     }
 
     if (item.menuItemId == "AskSupportGPT") {
@@ -1017,19 +1306,25 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
             break;
 
         case "CR":
+            const CtrnResult = await chrome.scripting.executeScript({
+                target: { tabId: tab.id },
+                func: GetHpLocation
+            });
+
+            const location = CtrnResult[0].result;
+            //console.log("HP_Search: CR location:", location);
+            const result = findHpCountry(location.country);
+            await chrome.scripting.executeScript({
+                target: {
+                    tabId: tab.id
+                },
+                func: ShowHpLanguages,
+                args: [location.country, result.matches]
+            });
+
+            
             const listeners = new URL(CloudRecoveryUrl);
             const CR_tab = await chrome.tabs.create({ url: listeners.href, active: true });
-
-            /*
-
-            let productId = item.selectionText.trim();
-            const pattern = /^[A-Za-z0-9]{7}#[A-Za-z0-9]{3}$/;
-            if (!pattern.test(productId)) {
-                productId = "";
-            }
-
-            */
-
 
             let productId = item.selectionText.trim();
 
@@ -1037,7 +1332,11 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
             const parenthesized = productId.match(/\(([A-Za-z0-9]{7})\)/);
 
             if (parenthesized) {
-                productId = parenthesized[1] + "#ABA";
+                if (result.matches.length > 0) {
+                    productId = parenthesized[1] + result.matches[0][0];
+                }
+                else 
+                    productId = parenthesized[1] + "#ABA";
             }
             else {
                 // Remove punctuation if the selected text is longer than 11 characters
