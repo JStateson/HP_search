@@ -1244,8 +1244,16 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
         return;
     }
 
-    let str1 = CurrentlyViewing(item.selectionText);
-    let str = RemoveCommonItems(item.selectionText);
+    let productId = item.selectionText.trim();
+    productId = productId
+        .replace(/\u2010/g, "-")  // hyphen
+        .replace(/\u2011/g, "-")  // non-breaking hyphen
+        .replace(/\u2012/g, "-")  // figure dash
+        .replace(/\u2013/g, "-")  // en dash
+        .replace(/\u2014/g, "-"); // em dash
+
+    let str1 = CurrentlyViewing(productId);
+    let str = RemoveCommonItems(productId);
     str = FixSpace(str);
     let strID = str;
     if (str1 == "") {
@@ -1281,6 +1289,9 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
     if (ctoIndex >= 0) {
         strID = strID.substring(0, ctoIndex).trim() + " CTO";
     }   
+
+    console.log("HP_Search: strID after CTO check: " + strID);
+    console.log("HP_Search: str after cleanup: " + str);
 
     switch (tld)
     {
