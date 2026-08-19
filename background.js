@@ -559,7 +559,119 @@ function PutSelectedIntoSpoiler() {
     //console.log("HP_Search: Selected content:", spoiler.outerHTML);
 }
 
-function CleanPastedHtml(option) { // designed for Google Docs to Khoros copy/paste but should work for other sources as well
+
+function CleanPastedHtml() { // designed for Google Docs to Khoros copy/paste but should work for other sources as well
+
+    function ExtractFootnotes(html) {
+
+        const temp = document.createElement("div");
+        temp.innerHTML = html;
+
+        const citationUrls = [];
+
+        const allowedDomains = [
+            "microsoft.com",
+            "hp.com",
+            "youtube.com",
+            "wikipedia.org",
+            "intel.com",
+            "amd.com",
+            "nvidia.com"
+        ];
+
+        // ---------------------------------------------------------
+        // Find numbered footnotes working backwards
+        // ---------------------------------------------------------
+
+        const elements = [...temp.querySelectorAll("div")];
+
+        let footnoteDivs = [];
+        let expectedNumber = null;
+
+        for (let i = elements.length - 1; i >= 0; i--) {
+
+            const div = elements[i];
+            const text = div.textContent.trim();
+
+            const match = text.match(/^\[(\d+)\]/);
+
+            if (!match) {
+
+                if (footnoteDivs.length > 0)
+                    break;
+
+                continue;
+            }
+
+            const number = parseInt(match[1], 10);
+
+            if (expectedNumber === null)
+                expectedNumber = number;
+
+            if (number !== expectedNumber)
+                break;
+
+            if (!div.querySelector("a[href]"))
+                break;
+
+            footnoteDivs.unshift(div);
+            expectedNumber--;
+        }
+
+        // ---------------------------------------------------------
+        // Extract allowed URLs and remove footnotes
+        // ---------------------------------------------------------
+
+        footnoteDivs.forEach(div => {
+
+            div.querySelectorAll("a[href]").forEach(a => {
+
+                const href = a.getAttribute("href");
+
+                if (!href)
+                    return;
+
+                const hostname = new URL(href).hostname.toLowerCase();
+
+                if (allowedDomains.some(domain =>
+                    hostname === domain ||
+                    hostname.endsWith("." + domain)
+                )) {
+
+                    // Remove Google's text-fragment portion
+                    const cleanUrl = href.split("#:~:text=")[0];
+
+                    if (!citationUrls.includes(cleanUrl))
+                        citationUrls.push(cleanUrl);
+                }
+            });
+
+            div.remove();
+        });
+
+        // ---------------------------------------------------------
+        // Build citation spoiler
+        // ---------------------------------------------------------
+
+        let citationHtml = "";
+
+        if (citationUrls.length > 0) {
+
+            citationHtml =
+                "<div class='lia-spoiler-container-editor'>" +
+                "<b>Do not call any phone numbers listed on any website or video below, unless it is an official HP site</b><br><br>" +
+                citationUrls.map(url =>
+                    `<a href="${url}" target="_blank" rel="noopener">${url}</a>`
+                ).join("<br><br>") +
+                "</div>";
+        }
+
+        return {
+            html: temp.innerHTML,
+            citationHtml: citationHtml
+        };
+    }
+
 
     if (document.body.id !== "tinymce")
         return;
@@ -580,6 +692,14 @@ function CleanPastedHtml(option) { // designed for Google Docs to Khoros copy/pa
     });
 
     let html = body.innerHTML;
+     
+
+    // Extract Google footnotes before other cleanup destroys their structure
+    const result = ExtractFootnotes(html);
+
+    html = result.html;
+    const citationHtml = result.citationHtml;
+   
 
     // ---------------------------------------------------------
     // 2. Remove citations already converted by Khoros
@@ -609,7 +729,17 @@ function CleanPastedHtml(option) { // designed for Google Docs to Khoros copy/pa
     // 5. Remove Google wrapper elements but keep contents
     // ---------------------------------------------------------
     html = html.replace(
-        /<\/?(?:div|span|mark)\b[^>]*>/gi,
+        /<div\b[^>]*>/gi,
+        ""
+    );
+
+    html = html.replace(
+        /<\/div>/gi,
+        "<br>"
+    );
+
+    html = html.replace(
+        /<\/?(?:span|mark)\b[^>]*>/gi,
         ""
     );
 
@@ -622,6 +752,11 @@ function CleanPastedHtml(option) { // designed for Google Docs to Khoros copy/pa
     );
 
     html = html.replace(
+        /<ol\b[^>]*>/gi,
+        "<ol>"
+    );
+
+    html = html.replace(
         /<li\b[^>]*>/gi,
         "<li>"
     );
@@ -629,6 +764,11 @@ function CleanPastedHtml(option) { // designed for Google Docs to Khoros copy/pa
     html = html.replace(
         /<strong\b[^>]*>/gi,
         "<strong>"
+    );
+
+    html = html.replace(
+        /<h2\b[^>]*>/gi,
+        "<h2>"
     );
 
     // ---------------------------------------------------------
@@ -639,15 +779,14 @@ function CleanPastedHtml(option) { // designed for Google Docs to Khoros copy/pa
         ""
     );
 
-    if (option === "spoiler") {
-        body.innerHTML = "<div class='lia-spoiler-container-editor'>" +
-            html +
-            "</div>";
-    }
-    else {
-        body.innerHTML = html;
-    }
+    // ---------------------------------------------------------
+    // 8. Remove Khoros-incompatible data-sfc-root attributes
+    // ---------------------------------------------------------
+    html = html.replace(/<em\b[^>]*>/gi, "<em>");
 
+    html += citationHtml;
+
+    body.innerHTML = html;
 
     // switch to DOM manipulation for the rest of the cleanup
     body.querySelectorAll("a").forEach(a => {
@@ -1195,8 +1334,7 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
                 tabId: tab.id,
                 allFrames: true
             },
-            func: CleanPastedHtml,
-            args: [""]
+            func: CleanPastedHtml
         });
         return;
     }

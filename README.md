@@ -9,7 +9,7 @@
 5. Cloud lookup looks up a product ID to see if it is supported. Demo video [is here](https://stateson.net/images/DemoCloudSupport.mp4)
    If the country code is missing it will be looked up using [this table](https://h30434.www3.hp.com/t5/Notebooks-Knowledge-Base/List-of-known-country-codes-gathered-from-the-internet/ta-p/9155615).  Demo video is [is here](https://stateson.net/images/DemoCountryCloudLookup.mp4)
 6. The Printer, AIO and PC can also be launched into a new window.
-7. Khoros spoilers are fixed.  Useful after pasting from a macro into a Khoros post.
+7. Khoros spoilers are fixed.  Useful only after pasting from a macro into a Khoros post.
 8. Khoros unfriendly HTML can be cleaned, citations removed, and put into a spoiler.
 9. You can start the HP SupportGPT and ask it a question.  Unfriendly Khoros HTML is removed and the answer can be returned using a **Copy Answer** button.  You **must run the start** before every question and any previous session will be deleted.  You should select **Stop SupportGPT** when no longer using SupportGPT to answer questions in any Khorus enabled forum.
 
@@ -30,12 +30,14 @@ Currently Viewing: "HP Laptop PC 15-dw3000 (31R08AV)" in "Notebook Hardware and 
    
 8. Copy and paste (for example) a Google response into the edit box.  Click "Clean Pasted HTML" Demo video [is here](https://stateson.net/images/DemoRemoveCitations.mp4)
 
-9. A demo video showing the spoiler feature is [here](https://stateson.net/images/DemoPutCleanedIntoSpoiler.mp4)
+9. Instead of Copy and Paste, if the Google COPY icon is selected then all approved footnotes are put into a spoiler.
+
+10. A demo video showing the spoiler feature is [here](https://stateson.net/images/DemoPutCleanedIntoSpoiler.mp4)
  
-10. A video showing lookup of an HP printer [is here](https://stateson.net/images/DemoPrinterLookup.mp4)
+11. A video showing lookup of an HP printer [is here](https://stateson.net/images/DemoPrinterLookup.mp4)
 
-11. Demo video of the HP SupportGPT [is here](https://stateson.net/images/DemoHPsupportGPT.mp4).
+12. Demo video of the HP SupportGPT [is here](https://stateson.net/images/DemoHPsupportGPT.mp4).
 
-12. **WARNING** please review **ISSUES** before installing the extension.  Feel free to create an issue is there is a problem.
+13. **WARNING** please review **ISSUES** before installing the extension.  Feel free to create an issue is there is a problem.
 
 ***Feb 2026: Google has change chrome and **turning off developer mode** disables this extension. You must leave developer mode enabled.
