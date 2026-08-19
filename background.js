@@ -129,7 +129,7 @@ const hpCountryTable = [
     ["#AB7", "Greece", "Greece"],
     ["#AB8", "Turkey", "Turkey"],
     ["#AB9", "Portugal", "Portugal"],
-    ["#ABA", "US", "US"],
+    ["#ABA", "United States", "US"],
     ["#ABB", "Europe", "Europe"],
     ["#ABL", "Canada", "Canada (English)"],
     ["#ABC", "Canada", "Canada (French)"],
@@ -892,6 +892,7 @@ function RemoveCommonItems(strIn)
     s = MyReplace(s, t, " notebook ");
     s = MyReplace(s, t, " printer ");
     s = MyReplace(s, t, " all-in-one ");
+    s = MyReplace(s, t, " ids base model ");
     // removed as some printer models might show up as laptops
     //s = MyReplace(s, t, " officejet ");
     //s = MyReplace(s, t, " laserjet ");
@@ -1207,8 +1208,6 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
                 allFrames: true
             },
             func: PutSelectedIntoSpoiler
-            //func: CleanPastedHtml,
-            //args: ["spoiler"]
         });
         return;
     }
@@ -1244,7 +1243,17 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
         return;
     }
 
-    let productId = item.selectionText.trim();
+    let productId = item.selectionText.trim();  // possibly contains a product ID in parentheses, e.g., (31R08AV) with a dash
+
+    /*
+    // Log each character and its Unicode code point to see if there are any non-standard characters
+    for (const c of productId) {
+        console.log(
+            `"${c}" U+${c.codePointAt(0).toString(16).toUpperCase()}`
+        );
+    }
+    */
+
     productId = productId
         .replace(/\u2010/g, "-")  // hyphen
         .replace(/\u2011/g, "-")  // non-breaking hyphen
@@ -1253,8 +1262,11 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
         .replace(/\u2014/g, "-"); // em dash
 
     let str1 = CurrentlyViewing(productId);
+    //console.log("HP_Search: CurrentlyViewing str1:", str1);
     let str = RemoveCommonItems(productId);
+    //console.log("HP_Search: RemoveCommonItems str:", str);
     str = FixSpace(str);
+    //console.log("HP_Search: FixSpace str:", str);
     let strID = str;
     if (str1 == "") {
         let str2 = HasBothItems(str);
@@ -1288,10 +1300,7 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
     let ctoIndex = strID.indexOf("CTO");
     if (ctoIndex >= 0) {
         strID = strID.substring(0, ctoIndex).trim() + " CTO";
-    }   
-
-    console.log("HP_Search: strID after CTO check: " + strID);
-    console.log("HP_Search: str after cleanup: " + str);
+    }
 
     switch (tld)
     {
@@ -1323,8 +1332,15 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
             });
 
             const location = CtrnResult[0].result;
+            if (location === null) {
+                return;
+            }
             //console.log("HP_Search: CR location:", location);
             const result = findHpCountry(location.country);
+            if (result === null) {
+                return;
+            }
+            //console.log("HP_Search: CR result:", result);
             await chrome.scripting.executeScript({
                 target: {
                     tabId: tab.id
@@ -1350,14 +1366,20 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
                     productId = parenthesized[1] + "#ABA";
             }
             else {
-                // Remove punctuation if the selected text is longer than 11 characters
-                if (productId.length > 11) {
-                    productId = productId.replace(/[^A-Za-z0-9#]/g, "");
-                }
 
-                // Validate the resulting Product ID
-                if (!/^[A-Za-z0-9]{7}#[A-Za-z0-9]{3}$/.test(productId)) {
-                    productId = "";
+                if (productId.length == 7) {
+                    productId = productId + result.matches[0][0];
+                }
+                else {
+                    // Remove punctuation if the selected text is longer than 11 characters
+                    if (productId.length > 11) {
+                        productId = productId.replace(/[^A-Za-z0-9#]/g, "");
+                    }
+
+                    // Validate the resulting Product ID
+                    if (!/^[A-Za-z0-9]{7}#[A-Za-z0-9]{3}$/.test(productId)) {
+                        productId = "";
+                    }
                 }
             }
 
