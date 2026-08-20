@@ -202,7 +202,10 @@ function findHpCountry(country) {
             country
         );
 
-        return null;
+        return { // was null;
+            lookupCode: "#ABA",
+            matches: [ ["#ABA", "United States", "US"] ]
+        }
     }
 
     return {
@@ -1468,31 +1471,33 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
                 target: { tabId: tab.id },
                 func: GetHpLocation
             });
-
+            let productId = item.selectionText.trim();
             const location = CtrnResult[0].result;
+            let result = [];
             if (location === null) {
-                return;
+                //may have the full product id
+                if (!/^[A-Za-z0-9]{7}#[A-Za-z0-9]{3}$/.test(productId)) {
+                    return;
+                }                
             }
-            //console.log("HP_Search: CR location:", location);
-            const result = findHpCountry(location.country);
-            if (result === null) {
-                return;
+            else {
+                result = findHpCountry(location.country);
+                // US is now returned instead of null for undefined languages
+                if (result.matches.length > 1) {
+                    await chrome.scripting.executeScript({
+                        target: {
+                            tabId: tab.id
+                        },
+                        func: ShowHpLanguages,
+                        args: [location.country, result.matches]
+                    });
+                }
             }
-            //console.log("HP_Search: CR result:", result);
-            await chrome.scripting.executeScript({
-                target: {
-                    tabId: tab.id
-                },
-                func: ShowHpLanguages,
-                args: [location.country, result.matches]
-            });
 
             
             const listeners = new URL(CloudRecoveryUrl);
             const CR_tab = await chrome.tabs.create({ url: listeners.href, active: true });
-
-            let productId = item.selectionText.trim();
-
+            
             // First look for exactly (CCCCCCC), where C is alphanumeric
             const parenthesized = productId.match(/\(([A-Za-z0-9]{7})\)/);
 
@@ -1513,14 +1518,12 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
                     if (productId.length > 11) {
                         productId = productId.replace(/[^A-Za-z0-9#]/g, "");
                     }
-
                     // Validate the resulting Product ID
                     if (!/^[A-Za-z0-9]{7}#[A-Za-z0-9]{3}$/.test(productId)) {
                         productId = "";
                     }
                 }
             }
-
             if (productId === "")
                 return;
 
