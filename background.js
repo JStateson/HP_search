@@ -504,64 +504,64 @@ function PutSelectedIntoSpoiler() {
     const selection = window.getSelection();
 
     if (!selection || selection.rangeCount === 0) {
-        //console.log("HP_Search: No selection");
         return;
     }
 
     const range = selection.getRangeAt(0);
 
     if (range.collapsed) {
-        //console.log("HP_Search: Selection is empty");
         return;
     }
 
+    // Save the selected HTML
     const fragment = range.cloneContents();
 
-    // ---------------------------------------------------------
-    // Remove empty list items from the selected content
-    // ---------------------------------------------------------
-    fragment.querySelectorAll("li").forEach(li => {
-        if (li.textContent.replace(/\u00a0/g, "").trim() === "") {
-            li.remove();
-        }
-    });
-
-    // Remove lists that became empty
-    fragment.querySelectorAll("ul, ol").forEach(list => {
-        if (list.querySelectorAll(":scope > li").length === 0) {
-            list.remove();
-        }
-    });
-
-    // ---------------------------------------------------------
-    // Put the selected content into the spoiler
-    // ---------------------------------------------------------
+    // Create the spoiler
     const spoiler = document.createElement("div");
     spoiler.className = "lia-spoiler-container-editor";
-
     spoiler.appendChild(fragment);
 
+    // Replace the selection with the spoiler
     range.deleteContents();
     range.insertNode(spoiler);
 
-    // Clean up list fragments created at the selection boundary
-    document.body.querySelectorAll("li").forEach(li => {
-        if (li.textContent.replace(/\u00a0/g, "").trim() === "") {
-            li.remove();
-        }
-    });
+    // ---------------------------------------------------------
+    // Put a paragraph immediately after the spoiler
+    // ---------------------------------------------------------
+    const paragraph = document.createElement("p");
+    paragraph.innerHTML = "<br>";
 
-    document.body.querySelectorAll("ul, ol").forEach(list => {
-        if (list.querySelectorAll(":scope > li").length === 0) {
-            list.remove();
-        }
-    });
+    spoiler.parentNode.insertBefore(
+        paragraph,
+        spoiler.nextSibling
+    );
+
+    // ---------------------------------------------------------
+    // Put the cursor into the paragraph
+    // ---------------------------------------------------------
+    const newRange = document.createRange();
+
+    newRange.setStart(paragraph, 0);
+    newRange.collapse(true);
 
     selection.removeAllRanges();
+    selection.addRange(newRange);
 
-    //console.log("HP_Search: Selected content:", spoiler.outerHTML);
+    // ---------------------------------------------------------
+    // Tell TinyMCE/Khoros that the editor changed
+    // ---------------------------------------------------------
+    const editorBody = document.body;
+
+    if (editorBody.id === "tinymce") {
+        editorBody.dispatchEvent(
+            new InputEvent("input", { bubbles: true })
+        );
+
+        editorBody.dispatchEvent(
+            new Event("change", { bubbles: true })
+        );
+    }
 }
-
 
 function CleanPastedHtml() { // designed for Google Docs to Khoros copy/paste but should work for other sources as well
 
