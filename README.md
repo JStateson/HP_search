@@ -12,6 +12,7 @@
 7. Khoros spoilers are fixed.  Useful only after pasting from a macro into a Khoros post.
 8. Khoros unfriendly HTML can be cleaned, citations removed, and put into a spoiler.
 9. You can start the HP SupportGPT and ask it a question.  Unfriendly Khoros HTML is removed and the answer can be returned using a **Copy Answer** button.  You **must run the start** before every question and any previous session will be deleted.  You should select **Stop SupportGPT** when no longer using SupportGPT to answer questions in any Khorus enabled forum.
+10. You can search your own posts for a phrase using "Find This Phrase" or "Find all my answers"
 
 ## To install this extension
 

@@ -21,6 +21,11 @@ or
 Joseph Stateson
 Princal Analyst, Retired
 Southwest Research Institute
+
+Notes on Khoros:
+searching explained: https://khoros-classic.kayako.com/article/124739-search-api-overview
+
+
 */
 
 //import './marked.umd.min.js'; 
@@ -58,12 +63,23 @@ chrome.runtime.onInstalled.addListener(async () => {
         title: "Copy Khoros to Clipboard",
         type: "normal",
         contexts: ["all"]
+        });
+    chrome.contextMenus.create({
+        id: "separator3",
+        type: "separator",
+        contexts: ["all"]
     });
     chrome.contextMenus.create({
-        id: "CR",
-        title: "CloudRecover",
+        id: "FindMyAnswers",
+        title: "Find all my answers",
         type: "normal",
-        contexts: ["all"]
+        contexts: ['selection']
+    });
+    chrome.contextMenus.create({
+        id: "FindThisPhrase",
+        title: "Find This Phrase",
+        type: "normal",
+        contexts: ['selection']
     });
     chrome.contextMenus.create({
         id: "separator0",
@@ -94,7 +110,12 @@ chrome.runtime.onInstalled.addListener(async () => {
         type: "separator",
         contexts: ["all"]
     });
-
+    chrome.contextMenus.create({
+        id: "CR",
+        title: "CloudRecover",
+        type: "normal",
+        contexts: ['selection']
+    });
     for (const [tld, locale] of Object.entries(tldLocales)) {              
 
         if (tld == "APrt") {
@@ -283,6 +304,152 @@ function ShowHpLanguages(country, matches) {
             panel.remove();
         });
 }
+
+
+function GetKhorosUserId() {
+    const html = document.documentElement.innerHTML;
+
+    const match = html.match(
+        /"User"\s*:\s*\{[\s\S]*?"id"\s*:\s*(\d+)/
+    );
+
+    if (!match)
+        return null;
+
+    return match[1];
+}
+
+
+function BuildKhorosApiSearch(searchText) {
+    const query =
+        "SELECT id, view_href, author, subject, body, conversation " +
+        "FROM messages " +
+        "WHERE depth = 0 " +
+        "AND body MATCHES '" + searchText + "' " +
+        "LIMIT 20";
+
+    return "https://h30434.www3.hp.com/api/2.0/search?q=" +
+        encodeURIComponent(query);
+}
+
+async function SearchKhorosApi(searchText) {
+
+    const query =
+        "SELECT id, view_href, author, subject, body, conversation " +
+        "FROM messages " +
+        "WHERE depth = 0 " +
+        "AND body MATCHES '" + searchText + "' " +
+        "LIMIT 20";
+
+    const url =
+        "https://h30434.www3.hp.com/api/2.0/search?q=" +
+        encodeURIComponent(query);
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error(`Khoros API error: ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    return result?.data?.items ?? [];
+}
+
+async function GetMyReplies(topicId, userId) {
+
+    const query =
+        "SELECT id, view_href, subject, author " +
+        "FROM messages " +
+        "WHERE topic.id = '" + topicId + "' " +
+        "AND author.id = '" + userId + "'";
+
+    const url =
+        "https://h30434.www3.hp.com/api/2.0/search?q=" +
+        encodeURIComponent(query);
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error(`Khoros API error: ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    return result?.data?.items ?? [];
+}
+
+async function FindMyRepliesToPhrase(searchText, userId) {
+
+    const topics = await SearchKhorosApi(searchText);
+    const results = [];
+
+    for (const topic of topics) {
+
+        const replies = await GetMyReplies(topic.id, userId);
+
+        for (const reply of replies) {
+            results.push({
+                topicId: topic.id,
+                topicSubject: topic.subject,
+                topicAuthor: topic.author.login,
+                message: reply
+            });
+        }
+    }
+
+    return results;
+}
+
+
+
+// searchType: 1 = find these words
+//             2 = find this exact phrase
+function BuildKhorosAuthorSearch(searchText, userId, searchType, rangeTime) {
+
+    let url =
+        "https://h30434.www3.hp.com/t5/forums/searchpage/tab/message";
+
+    // The filter must come before q or phrase
+    if (rangeTime) {
+        url += "?filter=authorId,includeForums,dateRangeType";
+    }
+    else {
+        url += "?filter=authorId,includeForums";
+    }
+
+
+    if (searchType === 1) {
+        // Find these words
+        const encodedSearch = encodeURIComponent(searchText).replace(/%20/g, "+");
+
+        url += "&q=" + encodedSearch;
+    }
+    if (searchType === 2) {
+        // Find this exact phrase
+        url += "&phrase=" + encodeURIComponent(searchText);
+    }
+
+    url +=
+        "&author_id=" + encodeURIComponent(userId) +
+        "&include_forums=true";
+
+    if (rangeTime) {
+        url += "&rangeTime=" + encodeURIComponent(rangeTime);
+    }
+
+    return url;
+}
+
+const KhorosSearchRange = {
+    ALL: null,
+    DAY: "24h",
+    WEEK: "1w",
+    MONTH: "1M",
+    YEAR: "1y"
+};
+
+
 
 async function GetAppTab() {
     const urlToFind = VirtualAgentUrl;
@@ -1328,6 +1495,47 @@ chrome.contextMenus.onClicked.addListener(async (item, tab) => {
             },
             func: CopyKhorosHtml
         });
+        return;
+    }
+
+    let SearchType = 0;
+    if (item.menuItemId == "FindMyAnswers")
+        SearchType = 1;
+    else if (item.menuItemId == "FindThisPhrase")
+        SearchType = 2;
+
+    if (SearchType > 0) {
+        const searchText = item.selectionText;
+        const result_id = await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            func: GetKhorosUserId
+        });
+        const userId = result_id?.[0]?.result ?? null;
+        let results = [];
+        let resultsUrl = [];
+        switch (SearchType){
+            case 1:
+                results = await FindMyRepliesToPhrase(searchText, userId);
+                //console.log("My matching replies:", results);
+                await chrome.storage.session.set({
+                    khorosSearchResults: {
+                        searchText: searchText,
+                        results: results
+                    }
+                });
+
+                resultsUrl = chrome.runtime.getURL("searchResults.html");
+                break;
+
+            case 2:
+                resultsUrl = BuildKhorosAuthorSearch(searchText, userId, 2, KhorosSearchRange.ALL);
+        }
+        chrome.tabs.create({
+            url: resultsUrl,
+            windowId: id,
+            index: tab.index + 1
+        });
+
         return;
     }
 
