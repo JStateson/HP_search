@@ -2,6 +2,8 @@
 
 ## Useful only for volunteers at the HP support community.  This is an independent community tool and is not an official HP product.
 
+## This exetension has been repalaced with HP Tools and Khoros Tools.  This extension will no longer be updated.  Please use the new extensions.
+
 1. Printer lookup returns Spec, How to reset, parts list and youtube network and Wi-Fi videos
 2. AIO/Laptop lookup returns Spec, Parts list and youtube disassembly
 3. PC lookup returns Spec and Parts list.
